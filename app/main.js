@@ -13,7 +13,7 @@ require.config({
 			exports:'angular'
 		},
 		'angular-resource':{
-			deps:['angulas'],
+			deps:['angular'],
 			exports:'angular'
 		}
 	}

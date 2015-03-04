@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Venkata Aditya Korada | Blog</title>
+	<title>{{page.title}}</title>
 	<link rel="stylesheet" type="text/css" href="styles/site.css">
 	<link rel="stylesheet" type="text/css" href="styles/animate.css">
 	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
@@ -11,9 +11,7 @@
 </head>
 <body>
 	<div class="content">
-	<div id="blog">
-	<div ng-view></div>
-</div>
+	{{content}}
 	</div>
 <script type="text/javascript" src="js/require.js" data-main="app/main.js"></script>
 </body>

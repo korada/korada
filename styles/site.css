@@ -32,3 +32,34 @@ a{
 	text-decoration: none;
 	color:#000000;
 }
+.card{  
+  width: 200px;
+  height: 100px;
+  box-shadow: 3px 3px 3px #A8A6A6;
+  background-color: white;
+}
+
+.card::before{
+  content: "";
+  height: 0;
+  width: 0;
+  border-width: 0px 0px 21px 21px;
+  border-style: solid;
+  border-color: transparent transparent rgb(255, 255, 255);
+  position: absolute;
+  top: 87px;
+  left: -1px;
+  box-shadow: 2px 2px 2px #B5B4B4;
+}
+
+.card::after{
+  content: "";
+  height: 0;
+  width: 0;
+  border-width: 20px 20px 0px 0px;
+  border-style: solid;
+  border-color: #EDEDED transparent;
+  position: absolute;
+  top: 88px;
+  left: 0px;
+}
