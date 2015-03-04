@@ -2,7 +2,7 @@
     layout: nil
 ---
 
-{
+functionCall({
     "posts":[
     {% for post in site.posts %}
         {
@@ -12,4 +12,4 @@
           "content"  : "{{ post.content | escape }}"
         } {% if forloop.last %}{% else %},{% endif %}
     {% endfor %}
-]} 
+]}); 
