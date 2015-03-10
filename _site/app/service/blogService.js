@@ -1,10 +1,8 @@
-define([],function(){
+define(['posts'],function(posts){
 	var service=function($http){
 		return {
             get: function (response) {
-                $http.get('data/site.json').success(function (data) {
-                    response(data.posts);
-                });
+                response(posts);
             }
         }
 	}

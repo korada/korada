@@ -1,8 +1,9 @@
 require.config({
 	paths:{
-	'angular':'../js/angular.min',
+	'angular':'../js/angular',
 	'angular-route':'../js/angular-route.min',
-	'angular-resource':'../js/angular-resource.min'
+	'angular-resource':'../js/angular-resource.min',
+	'posts':'data/posts'
 	},
 	shim:{
 		angular:{
