@@ -34,7 +34,12 @@ a{
 	color:#000000;
 }
 
+.view{
+  display: inline-block;
+  font-family: Amiri,helvetica,sans-serif;
+}
 /*Blog Content*/
+
 .blog{
   margin: auto auto auto 22%;
     border-left: 1px solid #dedede;
@@ -53,8 +58,16 @@ a{
   list-style:none;
 }
 
+/*post*/
+.post{
+  min-height: 400px;
+  padding:5% 10%;
+  display: inline-block;
+}
 
-
+.post article{
+  padding-top:12px;
+}
 
 .card{  
   width: 200px;
