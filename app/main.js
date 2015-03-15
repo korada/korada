@@ -3,6 +3,7 @@ require.config({
 	'angular':'../js/angular',
 	'angular-route':'../js/angular-route.min',
 	'angular-resource':'../js/angular-resource.min',
+	'angular-sanitize':'../js/angular-sanitize',
 	'posts':'data/posts'
 	},
 	shim:{
@@ -14,6 +15,10 @@ require.config({
 			exports:'angular'
 		},
 		'angular-resource':{
+			deps:['angular'],
+			exports:'angular'
+		},
+		'angular-sanitize':{
 			deps:['angular'],
 			exports:'angular'
 		}

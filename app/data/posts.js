@@ -1,5 +1,5 @@
 ---
-    layout: nil
+
 ---
 define([],function(){
 	return [
@@ -7,7 +7,8 @@ define([],function(){
         {
           "title"    : "{{ post.title }}",
           "url"     : "{{ post.url }}",
-          "date"     : "{{ post.date | date: "%B %d, %Y" }}"
+          "date"     : "{{ post.date | date: "%B %d, %Y" }}",
+          "content": "{{ post.content | escape }}"
         } {% if forloop.last %}{% else %},{% endif %}
     {% endfor %} ];
 });

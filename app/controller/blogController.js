@@ -3,5 +3,9 @@ define([],function(){
 		services.get(function(data){
 			$scope.posts=data;
 		});
+
+		$scope.formatUrl=function(url){
+
+		}
 	};
 });

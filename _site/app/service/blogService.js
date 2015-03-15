@@ -3,6 +3,17 @@ define(['posts'],function(posts){
 		return {
             get: function (response) {
                 response(posts);
+            },
+            getById: function(id,response){
+            	var i=posts.length;
+            	var obj;
+            	while(i--){
+            		if(posts[i].url.indexOf(id)>-1){
+            			obj=posts[i];
+            			break;
+            		}
+            	}
+            	response(obj);
             }
         }
 	}
