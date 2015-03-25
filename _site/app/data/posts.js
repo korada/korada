@@ -2,13 +2,6 @@ define([],function(){
 	return [
     
         {
-          "title"    : "Never involve others in your problems. If you do, you are making things even worse.",
-          "url"     : "/never-involve-others-in-your-problems-if-you-do.html",
-          "date"     : "July 14, 2014",
-          "content": "&lt;blockquote&gt;Never involve others in your problems. If you do, you are making things even worse.&lt;/blockquote&gt;&amp;#8212;Anonymous"
-        } ,
-    
-        {
           "title"    : "Train yourself to let go of everything you fear to lose.",
           "url"     : "/train-yourself-to-let-go-of-everything-you-fear-to.html",
           "date"     : "October 21, 2013",
@@ -37,20 +30,6 @@ define([],function(){
         } ,
     
         {
-          "title"    : "/var/null: Don't Fly During Ramadan",
-          "url"     : "/var-null-dont-fly-during-ramadan.html",
-          "date"     : "August 23, 2013",
-          "content": "&lt;a href=&quot;http://varnull.adityamukerjee.net/post/59021412512/dont-fly-during-ramadan&quot;&gt;/var/null: Don&#39;t Fly During Ramadan&lt;/a&gt;&lt;br/&gt;&lt;p&gt;&lt;a class=&quot;tumblr_blog&quot; href=&quot;http://varnull.adityamukerjee.net/post/59021412512/dont-fly-during-ramadan&quot;&gt;chimeracoder&lt;/a&gt;:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;A couple of weeks ago, I was scheduled to take a trip from New York (JFK) to Los Angeles on JetBlue. Every year, my family goes on a one-week pilgrimage, where we put our work on hold and spend time visiting temples, praying, and spending time with family and friends. To my Jewish friends, I often…&lt;/p&gt;&lt;/blockquote&gt;"
-        } ,
-    
-        {
-          "title"    : "my leap motion has arrived did some testing and i",
-          "url"     : "/my-leap-motion-has-arrived-did-some-testing-and-i.html",
-          "date"     : "July 29, 2013",
-          "content": "&lt;img src=&quot;http://40.media.tumblr.com/20ce21b88617ed2cb5d316e47418a0d6/tumblr_mqq6tfwoJO1rqsblro1_1280.jpg&quot;/&gt;&lt;br/&gt;&lt;p&gt;My Leap Motion has arrived.did some testing and I loved it. Wish I have a right monitor&lt;/p&gt;"
-        } ,
-    
-        {
           "title"    : "Pebble day 2&3",
           "url"     : "/pebble-day-2-3.html",
           "date"     : "July 11, 2013",
@@ -65,27 +44,6 @@ define([],function(){
         } ,
     
         {
-          "title"    : "no title",
-          "url"     : "/no-title.html",
-          "date"     : "July 05, 2013",
-          "content": "&lt;img src=&quot;http://41.media.tumblr.com/785af95ff334f05290112854559f2500/tumblr_mpej829C9R1rupmzro1_500.jpg&quot;/&gt;&lt;br/&gt;"
-        } ,
-    
-        {
-          "title"    : "Promises are made to keep other people happy. No one really means it.",
-          "url"     : "/promises-are-made-to-keep-other-people-happy-no.html",
-          "date"     : "July 05, 2013",
-          "content": "&lt;blockquote&gt;Promises are made to keep other people happy. No one really means it.&lt;/blockquote&gt;&amp;#8212;"
-        } ,
-    
-        {
-          "title"    : "FaceGram",
-          "url"     : "/facegram.html",
-          "date"     : "April 09, 2012",
-          "content": "&lt;p&gt;I was reading through the articles today and seen facebook bought instagram. Reading the headline my first word was &amp;#8220;NOOOO&amp;#8221;.&lt;/p&gt;&lt;p&gt;What really puzzles me is, did facebook buy instagram for it&amp;#8217;s user base or to incorporate those features in their website/app?&lt;/p&gt;&lt;p&gt;Whatever, those very few employees of instagram are rich now. Hope Facebook doesn&amp;#8217;t ruin that app with its ads and other stuff.. I like this app the way it is now..&lt;/p&gt;"
-        } ,
-    
-        {
           "title"    : "Repeat a track on spotify.",
           "url"     : "/repeat-a-track-on-spotify.html",
           "date"     : "March 22, 2012",
@@ -93,52 +51,10 @@ define([],function(){
         } ,
     
         {
-          "title"    : "Tumblr ftw!",
-          "url"     : "/tumblr-ftw.html",
-          "date"     : "March 09, 2012",
-          "content": "&lt;p&gt;Tumblr is amazing.. I can post things on the go.. I hope Wordpress and blogengine.net have these awesome features.. I will stick to tumblr until they come up with these cool features that tumblr has.. Till then tumblr \m/&lt;/p&gt;"
-        } ,
-    
-        {
-          "title"    : "Third time!",
-          "url"     : "/third-time.html",
-          "date"     : "March 09, 2012",
-          "content": "&lt;p&gt;So this is the third time that I&amp;#8217;m going to gatlinburg,TN (smoky mountains). It has become like a tradition.. I hope I don&amp;#8217;t go to this same place again next year..&lt;/p&gt;&lt;p&gt;I&amp;#8217;m so used to that place, wake me up in the middle of the night and I can jot down a perfect plan.. No matter how long the trip will be..&lt;/p&gt;"
-        } ,
-    
-        {
-          "title"    : "spot the difference p",
-          "url"     : "/spot-the-difference-p.html",
-          "date"     : "March 08, 2012",
-          "content": "&lt;img src=&quot;http://40.media.tumblr.com/tumblr_m0llq3mAjo1rqsblro1_1280.png&quot;/&gt;&lt;br/&gt;&lt;p&gt;SPOT the difference! :p&lt;/p&gt;"
-        } ,
-    
-        {
-          "title"    : "lunching time d",
-          "url"     : "/lunching-time-d.html",
-          "date"     : "March 06, 2012",
-          "content": "&lt;img src=&quot;http://36.media.tumblr.com/tumblr_m0harvHl8c1rqsblro1_500.png&quot;/&gt;&lt;br/&gt;&lt;p&gt;Lunching time! :D&lt;/p&gt;"
-        } ,
-    
-        {
-          "title"    : "i will really appreciate if anyone gift this rifle",
-          "url"     : "/i-will-really-appreciate-if-anyone-gift-this-rifle.html",
-          "date"     : "March 03, 2012",
-          "content": "&lt;img src=&quot;http://36.media.tumblr.com/tumblr_m0c47bS7vZ1rqsblro1_1280.png&quot;/&gt;&lt;br/&gt;&lt;p&gt;I will really appreciate if anyone gift that Rifle to me.. :D btw it is the rifle without the cartridge on the right..&lt;/p&gt;"
-        } ,
-    
-        {
           "title"    : "Opinion.",
           "url"     : "/opinion.html",
           "date"     : "March 03, 2012",
           "content": "&lt;p&gt;This opinion thing sucks.. Everyone has their own.. I wish there is only one opinion for everyone. So, this debate about topics or stuff can go extinct. Btw, this is my opinion.! :D&lt;/p&gt;&lt;p&gt;PS: I hate to participate in debates or arguments because, I suck at these things.&lt;/p&gt;"
-        } ,
-    
-        {
-          "title"    : "First blog post",
-          "url"     : "/first-blog-post.html",
-          "date"     : "February 28, 2012",
-          "content": "&lt;p&gt;I have a habit of creating a blog and deleting it right after a blog post is done. This time I&amp;#8217;m not going to do that.. :D I will be a active blogger once I complete designing my homepage.. &lt;br/&gt;Till then&lt;/p&gt;&lt;p&gt;Ciao&lt;/p&gt;"
         } 
      ];
 });
