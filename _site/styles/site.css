@@ -5,19 +5,35 @@ body{
 	margin:0;
 }
 
-.links, .content{
-margin:0;
-text-align: center;
+.sidebar{
+  position:fixed;
+  height: 100%;
+  width: 300px;
+  background-color:#008DD7;
+  text-align: center;
+  color:#ffffff;
+}
+.nav{
+  margin:20px 0;
+  font-size:20px;
+}
+.nav a{
+  color:#ffffff;
+}
+.sidebar img{
+ width: 180px;
+    margin: 15% 15% 0 15%;
+  border-radius: 180px;
 }
 
 .links a{
 	font-size: 32px;
 	padding:0 10px;
-	color:#008DD7;
+  color:#ffffff;
 }
 .content{
-	margin: 0 auto;
-	width: 1000px;
+position: absolute;
+    left: 25%;
 }
 .index{
     margin: 0 auto;
@@ -32,7 +48,6 @@ font-weight: 700;
 }
 a{
 	text-decoration: none;
-	color:#000000;
 }
 
 .view{
@@ -45,18 +60,9 @@ a{
   margin: auto auto auto 22%;
     border-left: 1px solid #dedede;
 }
-.sidebar{
-  position: absolute;
-  top: 100px;
-  left: 15px;
-}
-
-.sidebar a{
-  font-size: 24px;
-}
-
 .posts{
   list-style:none;
+  text-align: justify;
 }
 
 /*post*/
@@ -64,13 +70,14 @@ a{
   min-height: 400px;
   padding:5% 10%;
   display: inline-block;
+  text-align:justify;
 }
 
 .post article{
   padding-top:12px;
 }
 
-.card{  
+.card{
   width: 200px;
   height: 100px;
   box-shadow: 3px 3px 3px #A8A6A6;
