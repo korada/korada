@@ -9,7 +9,7 @@ body{
   position:fixed;
   height: 100%;
   width: 300px;
-  background-color:#008DD7;
+  background-color:#3480AD;
   text-align: center;
   color:#ffffff;
 }
@@ -18,7 +18,10 @@ body{
   font-size:20px;
 }
 .nav a{
-  color:#ffffff;
+    color: #3480AD;
+    background-color: #ffffff;
+    padding: 5px;
+    border-radius: 20px;
 }
 .sidebar img{
  width: 180px;
@@ -76,7 +79,10 @@ a{
 .post article{
   padding-top:12px;
 }
-
+.line-space{
+  width:100px;
+  display: inline-block;
+}
 .card{
   width: 200px;
   height: 100px;
