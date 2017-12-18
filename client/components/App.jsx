@@ -4,7 +4,7 @@ export default class App extends React.Component {
   render() {
     return (
      <div style={{textAlign: 'center'}}>
-        <h1>Hello World Test</h1>
+        <h1>Hello World Test1</h1>
         <h2><Link to="/about">About</Link></h2>
       </div>);
   }
