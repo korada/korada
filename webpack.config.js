@@ -3,13 +3,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpackDevServer= require('webpack-dev-server');
 const webpack = require('webpack');
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: './index.html',
+  template: './client/index.html',
   filename: 'index.html',
   inject: 'body'
 });
 
 module.exports = {
-  entry: './index.js',
+  entry: './client/index.js',
   devServer:{
     historyApiFallback:true
     
