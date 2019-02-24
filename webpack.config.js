@@ -1,53 +1,63 @@
-const path = require('path');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const webpackDevServer = require('webpack-dev-server');
-const webpack = require('webpack');
-const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: './client/index.html',
-  filename: 'index.html',
-  inject: 'body'
-});
+var HtmlWebpackPlugin = require('html-webpack-plugin')
+var CopyWebpackPlugin = require('copy-webpack-plugin')
 
-module.exports = {
-  entry: './client/index.js',
-  resolve:{
-  modules: [path.resolve(__dirname, 'client'),'node_modules']
-  },
-  devServer: {
-    historyApiFallback: true
+var path = require('path');
 
-  },
-  output: {
-    path: path.resolve(__dirname,'dist'),
-    filename: 'index_bundle.js'
-  },
-  module: {
-    loaders: [{
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/
-      },
-      {
+module.exports = env => {
+  var webpackSettings = {
+    cache: true,
+    mode: 'development',
+    entry: ['./client/index.jsx'],
+    optimization: {
+      usedExports: true
+    },
+    devtool: 'eval',
+    devServer: {
+      historyApiFallback: true
+    },
+    output: {
+      path: path.resolve(__dirname, "dist"),
+      filename: '[name].[hash].js',
+      publicPath: '/'
+    },
+    resolve: {
+      extensions: ['.webpack.js', '.web.js', '.js', '.jsx']
+    },
+    module: {
+      rules: [{
         test: /\.jsx$/,
+        exclude: /node_modules/,
         loader: 'babel-loader',
-        exclude: /node_modules/
+        query: {
+          cacheDirectory: true,
+          presets: ['react', 'es2015']
+        }
       },
-      {
-        test: /\.css$/,
-        loader: 'style-loader'
-      }, {
-        test: /\.css$/,
-        loader: 'css-loader'
-      }
+        {
+          test: /\.(png|gif|jpg|woff|eot|ttf|svg|woff2|ico)$/i,
+          use: 'file-loader?name=images/[name].[ext]'
+        },
+        {
+          test: /\.(config)$/i,
+          use: 'file-loader?name=[name].[ext]'
+        },
+        {
+          test: /\.(css|scss|sass)$/i,
+          use: [
+            'style-loader',
+            'css-loader',
+            'sass-loader'
+          ]
+        }
+
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: 'client/index.html',
+        filename: 'index.html'
+      })
     ]
-  },
-  plugins: [HtmlWebpackPluginConfig,
-    new webpack.DefinePlugin({
-      'process.env': {
-        'NODE_ENV': JSON.stringify('production')
-      }
-    }),
-    new ExtractTextPlugin('style.css')
-  ]
-}
+  };
+  return webpackSettings;
+};
