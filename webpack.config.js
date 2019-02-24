@@ -11,12 +11,15 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
 
 module.exports = {
   entry: './client/index.js',
+  resolve:{
+  modules: [path.resolve(__dirname, 'client'),'node_modules']
+  },
   devServer: {
     historyApiFallback: true
 
   },
   output: {
-    path: path.resolve('dist'),
+    path: path.resolve(__dirname,'dist'),
     filename: 'index_bundle.js'
   },
   module: {
