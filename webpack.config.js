@@ -1,6 +1,7 @@
 const path = require('path');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const webpackDevServer= require('webpack-dev-server');
+const webpackDevServer = require('webpack-dev-server');
 const webpack = require('webpack');
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   template: './client/index.html',
@@ -10,24 +11,40 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
 
 module.exports = {
   entry: './client/index.js',
-  devServer:{
-    historyApiFallback:true
-    
+  devServer: {
+    historyApiFallback: true
+
   },
   output: {
-    path: path.resolve('docs'),
+    path: path.resolve('dist'),
     filename: 'index_bundle.js'
   },
   module: {
-    loaders: [
-      { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
-      { test: /\.jsx$/, loader: 'babel-loader', exclude: /node_modules/ }
+    loaders: [{
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/
+      },
+      {
+        test: /\.jsx$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/
+      },
+      {
+        test: /\.css$/,
+        loader: 'style-loader'
+      }, {
+        test: /\.css$/,
+        loader: 'css-loader'
+      }
     ]
   },
-  plugins:[HtmlWebpackPluginConfig,
+  plugins: [HtmlWebpackPluginConfig,
     new webpack.DefinePlugin({
-        'process.env':{
-            'NODE_ENV': JSON.stringify('production')
-        }
-    })]
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
+    }),
+    new ExtractTextPlugin('style.css')
+  ]
 }
