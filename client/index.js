@@ -1,8 +1,8 @@
 import styles from '../css/site.css'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import App from './components/app.jsx'
-import Resume from './components/resume.jsx'
+import App from './components/app'
+import Resume from './components/resume'
 import { BrowserRouter as Router,Switch, Route, hashHistory, DefaultRoute } from 'react-router-dom'
 
 ReactDOM.render((
