@@ -10,7 +10,7 @@
   "license": "MIT",
   "scripts": {
     "start": "webpack-dev-server",
-    "build:prod": "webpack --env.prod --env.APP_ENVIRONMENT=prod"
+    "build:prod": "webpack --display-error-details --env.prod --env.APP_ENVIRONMENT=prod"
   },
   "dependencies": {
     "css-loader": "^0.28.7",
