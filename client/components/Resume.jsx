@@ -23,7 +23,6 @@ export default class Resume extends React.Component {
       randomDots(x, y);
     }
   }
-
   render() {
     return (
       <div className="resume">
