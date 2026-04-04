@@ -1,63 +1,46 @@
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
-var path = require('path');
-
-module.exports = env => {
-  var webpackSettings = {
-    cache: true,
-    mode: 'development',
-    entry: ['./client/index.jsx'],
-    optimization: {
-      usedExports: true
-    },
-    devtool: 'eval',
-    devServer: {
-      historyApiFallback: true
-    },
-    output: {
-      path: path.resolve(__dirname, "dist"),
-      filename: '[name].[hash].js',
-      publicPath: '/'
-    },
-    resolve: {
-      extensions: ['.webpack.js', '.web.js', '.js', '.jsx']
-    },
-    module: {
-      rules: [{
-        test: /\.jsx$/,
+module.exports = {
+  mode: 'development',
+  entry: './client/index.jsx',
+  devtool: 'eval-source-map',
+  devServer: {
+    historyApiFallback: true,
+    hot: true,
+    port: 3000,
+    open: true
+  },
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash].js',
+    clean: true,
+    publicPath: '/'
+  },
+  resolve: {
+    extensions: ['.js', '.jsx']
+  },
+  module: {
+    rules: [
+      {
+        test: /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          cacheDirectory: true,
-          presets: ['react', 'es2015']
-        }
+        use: 'babel-loader'
       },
-        {
-          test: /\.(png|gif|jpg|woff|eot|ttf|svg|woff2|ico)$/i,
-          use: 'file-loader?name=images/[name].[ext]'
-        },
-        {
-          test: /\.(config)$/i,
-          use: 'file-loader?name=[name].[ext]'
-        },
-        {
-          test: /\.(css|scss|sass)$/i,
-          use: [
-            'style-loader',
-            'css-loader',
-            'sass-loader'
-          ]
-        }
-
-      ]
-    },
-    plugins: [
-      new HtmlWebpackPlugin({
-        template: 'client/index.html',
-        filename: 'index.html'
-      })
+      {
+        test: /\.(css|scss|sass)$/,
+        use: ['style-loader', 'css-loader', 'sass-loader']
+      },
+      {
+        test: /\.(png|gif|jpg|svg|woff|woff2|eot|ttf|ico)$/,
+        type: 'asset/resource'
+      }
     ]
-  };
-  return webpackSettings;
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: 'client/index.html',
+      filename: 'index.html'
+    })
+  ]
 };
