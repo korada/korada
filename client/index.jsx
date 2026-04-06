@@ -1,26 +1,13 @@
-import 'bootstrap/scss/bootstrap.scss';
-import "./assets/css/site.scss";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './assets/css/site.scss';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
-import configureStore, {history} from './store/configureStore'
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import registerServiceWorker from './registerServiceWorker';
 
-const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
-
-const initialState = window.initialReduxState;
-const store = configureStore(initialState);
-
-const rootElement = document.getElementById('root');
-
-ReactDOM.render(
-    <Provider store={store}>
-        <ConnectedRouter history={history}>
-            <App />
-        </ConnectedRouter>
-    </Provider>,
-    rootElement);
-
-registerServiceWorker();
+const root = createRoot(document.getElementById('root'));
+root.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);

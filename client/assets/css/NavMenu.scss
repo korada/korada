@@ -1,56 +1,157 @@
-.navbar li .glyphicon {
-    margin-right: 10px;
+// ── Nav bar ────────────────────────────────────────────────────────────────────
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+
+  // scrolled state — frosted glass card
+  &.scrolled {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 24px rgba(102, 126, 234, 0.14);
+
+    .nav-brand,
+    .hamburger {
+      color: #667eea;
+    }
+
+    .nav-link-btn {
+      color: #4a5568;
+
+      &:hover {
+        background: #ede9fe;
+        color: #667eea;
+      }
+    }
+  }
 }
 
-/* Highlighting rules for nav menu items */
-.navbar .navbar-nav .active a,
-.navbar .navbar-nav .active a:hover,
-.navbar .navbar-nav .active a:focus {
-    background-image: none;
-    background-color: #4189C7;
-    color: white;
+// ── Brand ─────────────────────────────────────────────────────────────────────
+.nav-brand {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #ffffff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.25s;
+  letter-spacing: 0.5px;
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.7);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
 }
 
-@media (min-width: 768px) {
-    /* On large screens, convert the nav menu to a vertical sidebar */
-    .navbar {
-        height: 100%;
+// ── Hamburger ─────────────────────────────────────────────────────────────────
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.45rem;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+  border-radius: 6px;
+  transition: color 0.25s, background 0.2s;
+  line-height: 1;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.7);
+    outline-offset: 3px;
+  }
+}
+
+// ── Link list ─────────────────────────────────────────────────────────────────
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.nav-link-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  transition: background 0.2s, color 0.2s;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.7);
+    outline-offset: 2px;
+  }
+}
+
+// ── Mobile ────────────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .site-nav {
+    padding: 0.9rem 1.25rem;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem;
+    gap: 0.2rem;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+
+    &.open {
+      display: flex;
     }
-    .navbar {
-        border-radius: 0;
-        border-width: 0;
-        height: 100%;
+
+    .nav-link-btn {
+      color: #4a5568;
+      text-align: left;
+      padding: 0.7rem 1rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      width: 100%;
+
+      &:hover {
+        background: #ede9fe;
+        color: #667eea;
+      }
     }
-    .navbar-header {
-        float: none;
-    }
-    .navbar .navbar-collapse {
-        padding: 0;
-    }
-    .navbar .container-fluid {
-        padding: 0;
-        margin: 0;
-    }
-    .navbar .container-fluid .navbar-brand {
-        margin: 0;
-    }
-    .navbar ul {
-        float: none;
-    }
-    .navbar li {
-        float: left;
-        font-size: 15px;
-        margin: 6px;
-    }
-    .navbar li a {
-        padding: 10px 16px;
-        border-radius: 4px;
-    }
-    .navbar a {
-        /* If a menu item's text is too long, truncate it */
-        width: 100%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+  }
 }

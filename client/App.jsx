@@ -1,10 +1,14 @@
 import React from 'react';
-import { Route } from 'react-router';
+import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Resume from './components/Resume';
 
-export default () => (
-  <Layout>
-    <Route exact path='/' component={Resume} />
-  </Layout>
-);
+export default function App() {
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Resume />} />
+      </Routes>
+    </Layout>
+  );
+}
