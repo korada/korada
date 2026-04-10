@@ -1,24 +1,19 @@
-// 📝 Resume data — update this file with your actual content.
-// LinkedIn was not publicly accessible, so fill in the TODOs below.
-// Everything marked with "TODO:" is a placeholder for you to update.
-
 export const resumeData = {
   name: 'Venkata Aditya Korada',
 
-  // Typewriter rotates through these on the hero screen
   titles: [
+    'Director of Software Engineering',
     'Full Stack Developer',
-    'Software Engineer',
-    'React Enthusiast',
+    'Engineering Leader',
     'Problem Solver',
   ],
 
   about:
-    'Software Engineer at Ally Financial with a passion for building scalable, ' +
-    'user-friendly web applications. Based in Charlotte, NC, I bring experience ' +
-    'across the full stack — from crafting React and Angular front-ends to building ' +
-    'Java and .NET backends, containerising services with Docker, and streaming ' +
-    'observability data into Elasticsearch.',
+    'Director of Software Engineering at Ally with over 14 years of experience ' +
+    'building scalable, user-friendly web applications. Based in Charlotte, NC, ' +
+    'I bring expertise across the full stack — from crafting React and Angular ' +
+    'front-ends to building Java and .NET backends, working with Apache Kafka, ' +
+    'Amazon Aurora, and leading high-performing engineering teams.',
 
   contact: {
     email: 'venkata@korada.in',
@@ -30,6 +25,7 @@ export const resumeData = {
   skills: {
     Frontend: [
       'React',
+      'React Native',
       'Angular',
       'JavaScript (ES6+)',
       'TypeScript',
@@ -37,37 +33,82 @@ export const resumeData = {
       'HTML5 / CSS3',
       'Knockout.js',
     ],
-    Backend: ['Java', 'C# / .NET Core', 'Node.js'],
+    Backend: ['Java', 'C# / .NET Core', 'Node.js', 'Apache Kafka'],
     'Tools & DevOps': ['Docker', 'Elasticsearch', 'Webpack', 'Git / GitHub'],
-    Databases: ['SQL', 'Elasticsearch / Kibana'],
+    Databases: ['SQL', 'Amazon Aurora', 'Elasticsearch / Kibana'],
   },
 
   experience: [
     {
-      company: 'Ally Financial Inc',
-      role: 'Software Engineer', // TODO: update with your exact title
-      dates: 'Present · Charlotte, NC',
+      company: 'Ally',
+      role: 'Director of Software Engineering',
+      dates: 'Jul 2024 – Present · Charlotte, NC',
+      bullets: [],
+    },
+    {
+      company: 'Ally',
+      role: 'Principal Software Engineer',
+      dates: 'May 2022 – Jul 2024 · Santa Clara, CA',
+      bullets: [],
+    },
+    {
+      company: 'Premier Inc.',
+      role: 'Staff Software Engineer',
+      dates: 'Sep 2019 – May 2022 · Sunnyvale, CA',
       bullets: [
-        // TODO: paste your experience bullets from LinkedIn here, e.g.:
-        'TODO: Add your first achievement / responsibility here.',
-        'TODO: Add your second achievement / responsibility here.',
-        'TODO: Add your third achievement / responsibility here.',
+        'Led a team of engineers to build a Subscription management system to subscribe providers to various performance monitoring products.',
+        'Developed a reporting system to generate reports for clients from more than 800 client databases.',
       ],
     },
-    // TODO: add previous roles following the same shape, e.g.:
-    // {
-    //   company: 'Previous Company',
-    //   role: 'Software Developer',
-    //   dates: 'Jan 2018 – Dec 2020 · City, State',
-    //   bullets: ['...'],
-    // },
+    {
+      company: 'Premier Inc.',
+      role: 'Senior Software Engineer',
+      dates: 'Jan 2016 – Aug 2019 · Pittsburgh, PA',
+      bullets: [
+        'Designed and developed Performance monitor UI for various health organizations to view their providers performance across hundreds of measures.',
+        'Designed and built the UI for the internal data teams to run calculations on the patient data provided by various health organizations.',
+      ],
+    },
+    {
+      company: 'CECITY.COM',
+      role: 'Senior Software Engineer',
+      dates: 'Jan 2014 – Dec 2015 · Pittsburgh, PA',
+      bullets: [],
+    },
+    {
+      company: 'Direct Energy Business',
+      role: 'Contract Web Developer',
+      dates: 'Oct 2012 – Jan 2014 · Pittsburgh, PA',
+      bullets: [
+        'Developed UI and services for business.directenergy.com and other projects.',
+      ],
+    },
+    {
+      company: 'Fiserv',
+      role: 'Associate Software Developer',
+      dates: 'Jul 2011 – Aug 2012 · Bowling Green, KY',
+      bullets: [
+        'Developer, production support and offshore team coordinator.',
+      ],
+    },
+    {
+      company: 'Western Kentucky University',
+      role: 'Graduate Assistant',
+      dates: 'Jan 2010 – May 2011 · Bowling Green, KY',
+      bullets: [],
+    },
   ],
 
   education: [
     {
-      school: 'TODO: Your University', // e.g. 'University of Texas at Austin'
-      degree: 'TODO: Your Degree',     // e.g. 'B.S. Computer Science'
-      year: 'TODO: Graduation Year',   // e.g. '2016'
+      school: 'Western Kentucky University',
+      degree: 'Master of Science (MS), Computer Science',
+      year: '2009 – 2011',
+    },
+    {
+      school: 'Swami Vivekananda Institute of Technology',
+      degree: 'Bachelor of Technology (B.Tech.), Computer Science Engineering',
+      year: '2005 – 2009',
     },
   ],
 
@@ -102,7 +143,7 @@ export const resumeData = {
       description:
         'Calculate total charging costs across Tesla Supercharger sessions.',
       tech: ['JavaScript'],
-      url: null, // private repo — set to null to hide the link
+      url: null,
     },
   ],
 };
