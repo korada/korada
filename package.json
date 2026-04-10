@@ -9,6 +9,9 @@
   },
   "author": "Venkata Aditya Korada <venkata@korada.in>",
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "webpack serve",
     "build:prod": "webpack --mode production --output-path docs"
