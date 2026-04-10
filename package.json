@@ -14,7 +14,7 @@
   },
   "scripts": {
     "start": "webpack serve",
-    "build:prod": "webpack --mode production --output-path docs"
+    "build:prod": "webpack --mode production --output-path docs && echo 'korada.in' > docs/CNAME"
   },
   "dependencies": {
     "bootstrap": "^5.3.3",
