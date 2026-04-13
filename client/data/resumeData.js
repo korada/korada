@@ -3,7 +3,6 @@ export const resumeData = {
 
   titles: [
     'Director of Software Engineering',
-    'Full Stack Developer',
     'Engineering Leader',
     'Problem Solver',
   ],

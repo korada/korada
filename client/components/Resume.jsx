@@ -91,7 +91,7 @@ export default function Resume() {
   useScrollReveal();
   useStarfield('starfield');
   const typedText = useTypewriter(resumeData.titles);
-  const { name, about, contact, skills, experience, education, projects } =
+  const { name, contact, experience, education } =
     resumeData;
 
   return (
@@ -137,38 +137,6 @@ export default function Resume() {
 
       <div className="content-wrapper">
 
-        {/* ── About ──────────────────────────────────────────────────────── */}
-        <section id="about" className="section reveal">
-          <div className="section-card">
-            <h2 className="section-title">🙋 About Me</h2>
-            <p className="about-text">{about}</p>
-          </div>
-        </section>
-
-        {/* ── Skills ─────────────────────────────────────────────────────── */}
-        <section id="skills" className="section reveal">
-          <div className="section-card">
-            <h2 className="section-title">🛠️ Skills</h2>
-            <div className="skills-grid">
-              {Object.entries(skills).map(([category, items]) => (
-                <div key={category} className="skill-category">
-                  <h4 className="skill-category-title">{category}</h4>
-                  <div className="chip-group">
-                    {items.map((skill, i) => (
-                      <span
-                        key={skill}
-                        className={`chip ${CHIP_COLORS[i % CHIP_COLORS.length]}`}
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* ── Experience ─────────────────────────────────────────────────── */}
         <section id="experience" className="section reveal">
           <div className="section-card">
@@ -190,45 +158,6 @@ export default function Resume() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* ── Projects ───────────────────────────────────────────────────── */}
-        <section id="projects" className="section">
-          <h2 className="section-title section-title-standalone reveal">
-            🚀 Projects
-          </h2>
-          <div className="projects-grid">
-            {projects.map((project, i) => (
-              <div
-                key={i}
-                className="project-card reveal"
-                style={{ transitionDelay: `${i * 0.08}s` }}
-              >
-                <div className="project-emoji" aria-hidden="true">
-                  {project.emoji}
-                </div>
-                <h3 className="project-name">{project.name}</h3>
-                <p className="project-desc">{project.description}</p>
-                <div className="chip-group">
-                  {project.tech.map(t => (
-                    <span key={t} className="chip chip-small chip-gray">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-                {project.url && (
-                  <a
-                    href={project.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="project-link"
-                  >
-                    View on GitHub →
-                  </a>
-                )}
-              </div>
-            ))}
           </div>
         </section>
 

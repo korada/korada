@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../assets/css/NavMenu.scss';
 
-const NAV_SECTIONS = ['about', 'skills', 'experience', 'projects', 'education'];
+const NAV_SECTIONS = ['experience', 'education'];
 
 export default function NavMenu() {
   const [scrolled, setScrolled] = useState(false);
