@@ -36,7 +36,7 @@
 // Your existing sheet: "Seemantham - Sravya - rsvp"
 var SHEET_ID     = '1-Vl-0uW5WhZDwtNg_1l4OveKLCgjKLYbWd4fdCejuvw';
 var SHEET_NAME   = 'RSVPs';              // tab name (auto-created)
-var NOTIFY_EMAIL = 'venkata@korada.in';  // email alerts; set to '' to disable
+var NOTIFY_EMAIL = 'korvenadi@gmail.com';  // email alerts; set to '' to disable
 
 // ── doPost: receives RSVP submissions from the web page ────────────────────
 function doPost(e) {
