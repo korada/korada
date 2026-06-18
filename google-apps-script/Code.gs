@@ -1,29 +1,28 @@
 /**
  * Sravya's Seemantham RSVP — Google Apps Script Backend
  *
+ * Writes to your existing sheet "Seemantham - Sravya - rsvp".
+ *
  * ── SETUP (do these IN ORDER) ───────────────────────────────────────────────
  *
- *  1. Create the Google Sheet that will store RSVPs:
- *       → sheets.google.com → Blank spreadsheet
- *       → Name it "Sravya Seemantham RSVPs"
+ *  1. Go to script.google.com → New project.
  *
- *  2. From INSIDE that sheet, open: Extensions → Apps Script
- *       (This "binds" the script to the sheet, so no Sheet ID is needed.)
+ *  2. Delete any starter code, paste THIS entire file, and Save (💾).
+ *     (SHEET_ID below already points at your RSVP sheet — nothing to change.)
  *
- *  3. Delete any starter code, paste THIS entire file, and Save (💾).
- *
- *  4. Deploy → New deployment → (gear ⚙️) Web app
+ *  3. Deploy → New deployment → (gear ⚙️) Web app
  *       Execute as:      Me
  *       Who has access:  Anyone
- *     → Deploy → Authorize access → allow → Copy the Web app URL.
+ *     → Deploy → Authorize access → allow (it will ask for Sheets + Gmail
+ *       permission because of SHEET_ID and the email alert) → Copy the URL.
  *       It MUST end in  /exec   (not /dev).
  *
- *  5. Paste that /exec URL into GAS_URL in BOTH files:
+ *  4. Paste that /exec URL into GAS_URL in BOTH files:
  *       • docs/SravyaBabyShower/index.html
  *       • client/components/BabyShower.jsx
  *     Then commit & push.
  *
- *  6. TEST it: open the /exec URL in your browser. You should see
+ *  5. TEST it: open the /exec URL in your browser. You should see
  *       {"status":"RSVP endpoint is active 🌸"}
  *     Then submit the form once and confirm a row appears in the sheet.
  *
@@ -34,6 +33,8 @@
  * ────────────────────────────────────────────────────────────────────────────
  */
 
+// Your existing sheet: "Seemantham - Sravya - rsvp"
+var SHEET_ID     = '1-Vl-0uW5WhZDwtNg_1l4OveKLCgjKLYbWd4fdCejuvw';
 var SHEET_NAME   = 'RSVPs';              // tab name (auto-created)
 var NOTIFY_EMAIL = 'venkata@korada.in';  // email alerts; set to '' to disable
 
@@ -81,13 +82,13 @@ function doGet(e) {
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function getOrCreateSheet() {
-  // Container-bound: uses the sheet this script is attached to. No ID needed.
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  // Opens the specific RSVP sheet by ID (works from a standalone script).
+  // Falls back to the bound spreadsheet if the script is attached to a sheet.
+  var ss = SHEET_ID
+    ? SpreadsheetApp.openById(SHEET_ID)
+    : SpreadsheetApp.getActiveSpreadsheet();
   if (!ss) {
-    throw new Error(
-      'No active spreadsheet. Open the Sheet, then Extensions → Apps Script, ' +
-      'so the script is bound to it.'
-    );
+    throw new Error('Could not open the RSVP spreadsheet. Check SHEET_ID.');
   }
 
   var sheet = ss.getSheetByName(SHEET_NAME);
