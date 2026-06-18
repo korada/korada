@@ -440,25 +440,6 @@
         </div>
       </div>
 
-      <!-- Dietary -->
-      <div class="form-group">
-        <label>Dietary Preference</label>
-        <div class="radio-group">
-          <label class="radio-label">
-            <input type="radio" name="dietary" value="Vegetarian" checked />
-            Vegetarian
-          </label>
-          <label class="radio-label">
-            <input type="radio" name="dietary" value="Non-Vegetarian" />
-            Non-Vegetarian
-          </label>
-          <label class="radio-label">
-            <input type="radio" name="dietary" value="Vegan" />
-            Vegan
-          </label>
-        </div>
-      </div>
-
       <!-- Wishes -->
       <div class="form-group">
         <label for="f-message">Wishes for Sravya &amp; Venkata Aditya 💛</label>
@@ -521,7 +502,6 @@
         phone: form.phone.value.trim(),
         adults: form.adults.value,
         children: form.children.value,
-        dietary: form.querySelector('[name="dietary"]:checked').value,
         message: form.message.value.trim(),
         submittedAt: new Date().toISOString(),
       };
@@ -538,12 +518,15 @@
         return;
       }
 
-      // Submit to Google Apps Script
-      // mode: no-cors is required for cross-origin GAS requests
+      // Submit to Google Apps Script.
+      // no-cors is required because GAS doesn't return CORS headers; the
+      // request still reaches the server and the row is saved. Under no-cors
+      // the only allowed Content-Type is text/plain — the JSON string is sent
+      // as the body and GAS reads it via e.postData.contents.
       fetch(GAS_URL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(data),
       })
         .then(function () {

@@ -1,52 +1,55 @@
 /**
  * Sravya's Seemantham RSVP — Google Apps Script Backend
  *
- * ── SETUP INSTRUCTIONS ──────────────────────────────────────────────────────
+ * ── SETUP (do these IN ORDER) ───────────────────────────────────────────────
  *
- *  1. Create a new Google Sheet:
- *     → sheets.google.com → Blank spreadsheet
- *     → Name it "Sravya Seemantham RSVPs"
- *     → Copy the Spreadsheet ID from the URL:
- *         https://docs.google.com/spreadsheets/d/SPREADSHEET_ID_HERE/edit
+ *  1. Create the Google Sheet that will store RSVPs:
+ *       → sheets.google.com → Blank spreadsheet
+ *       → Name it "Sravya Seemantham RSVPs"
  *
- *  2. Open Google Apps Script:
- *     → From the sheet: Extensions → Apps Script
- *     → OR go to script.google.com → New Project
+ *  2. From INSIDE that sheet, open: Extensions → Apps Script
+ *       (This "binds" the script to the sheet, so no Sheet ID is needed.)
  *
- *  3. Paste this entire file into the editor (Code.gs)
+ *  3. Delete any starter code, paste THIS entire file, and Save (💾).
  *
- *  4. Set your Spreadsheet ID on the line below:
- */
-var SPREADSHEET_ID = 'YOUR_GOOGLE_SHEET_ID_HERE';   // ← paste your Sheet ID
-var SHEET_NAME     = 'RSVPs';                         // tab name (auto-created)
-var NOTIFY_EMAIL   = 'venkata@korada.in';             // email for new RSVP alerts
-
-/**
- * ── DEPLOY STEPS ────────────────────────────────────────────────────────────
+ *  4. Deploy → New deployment → (gear ⚙️) Web app
+ *       Execute as:      Me
+ *       Who has access:  Anyone
+ *     → Deploy → Authorize access → allow → Copy the Web app URL.
+ *       It MUST end in  /exec   (not /dev).
  *
- *  5. Click Deploy → New Deployment
- *  6. Click the gear ⚙️ next to "Select type" → Web App
- *  7. Settings:
- *       Description:  Seemantham RSVP
- *       Execute as:   Me
- *       Who has access: Anyone
- *  8. Click Deploy → Authorize → Copy the Web App URL
+ *  5. Paste that /exec URL into GAS_URL in BOTH files:
+ *       • docs/SravyaBabyShower/index.html
+ *       • client/components/BabyShower.jsx
+ *     Then commit & push.
  *
- *  9. Open docs/SravyaBabyShower/index.html in the repo
- *     and replace the placeholder:
- *       var GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
- *     with the URL you just copied.
+ *  6. TEST it: open the /exec URL in your browser. You should see
+ *       {"status":"RSVP endpoint is active 🌸"}
+ *     Then submit the form once and confirm a row appears in the sheet.
  *
- * 10. Commit and push — done! 🎉
+ *  ⚠️  IMPORTANT — the #1 reason changes "do nothing":
+ *      Every time you EDIT this script you must redeploy a NEW VERSION:
+ *        Deploy → Manage deployments → ✏️ edit → Version: "New version" → Deploy.
+ *      The /exec URL stays the same, but the old code keeps running until you do.
  * ────────────────────────────────────────────────────────────────────────────
  */
+
+var SHEET_NAME   = 'RSVPs';              // tab name (auto-created)
+var NOTIFY_EMAIL = 'venkata@korada.in';  // email alerts; set to '' to disable
 
 // ── doPost: receives RSVP submissions from the web page ────────────────────
 function doPost(e) {
   try {
-    var sheet = getOrCreateSheet();
-    var data  = JSON.parse(e.postData.contents);
+    // Accepts either a JSON body or form-encoded params (both work here).
+    var data = {};
+    if (e && e.postData && e.postData.contents) {
+      try { data = JSON.parse(e.postData.contents); } catch (ignore) {}
+    }
+    if (e && e.parameter && !data.name) {
+      data = e.parameter;
+    }
 
+    var sheet = getOrCreateSheet();
     sheet.appendRow([
       new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
       data.name     || '',
@@ -54,11 +57,9 @@ function doPost(e) {
       data.phone    || '',
       data.adults   || '1',
       data.children || '0',
-      data.dietary  || 'Vegetarian',
       data.message  || '',
     ]);
 
-    // Optional: send email notification for each new RSVP
     if (NOTIFY_EMAIL) {
       MailApp.sendEmail({
         to:      NOTIFY_EMAIL,
@@ -73,32 +74,35 @@ function doPost(e) {
   }
 }
 
-// ── doGet: health-check so you can verify the URL works ───────────────────
+// ── doGet: open the /exec URL in a browser to confirm it's live ────────────
 function doGet(e) {
   return jsonResponse({ status: 'RSVP endpoint is active 🌸' });
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function getOrCreateSheet() {
-  var ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
-  var sheet = ss.getSheetByName(SHEET_NAME);
+  // Container-bound: uses the sheet this script is attached to. No ID needed.
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) {
+    throw new Error(
+      'No active spreadsheet. Open the Sheet, then Extensions → Apps Script, ' +
+      'so the script is bound to it.'
+    );
+  }
 
+  var sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    // Header row
     sheet.appendRow([
-      'Timestamp', 'Name', 'Email', 'Phone',
-      'Adults', 'Children', 'Dietary', 'Wishes',
+      'Timestamp', 'Name', 'Email', 'Phone', 'Adults', 'Children', 'Wishes',
     ]);
-    // Style header
-    var header = sheet.getRange(1, 1, 1, 8);
+    var header = sheet.getRange(1, 1, 1, 7);
     header.setFontWeight('bold');
     header.setBackground('#1B4332');
     header.setFontColor('#FFFFFF');
     sheet.setFrozenRows(1);
-    sheet.setColumnWidths(1, 8, 160);
+    sheet.setColumnWidths(1, 7, 160);
   }
-
   return sheet;
 }
 
@@ -106,13 +110,12 @@ function formatEmailBody(data) {
   return [
     'New RSVP for Sravya\'s Seemantham!',
     '',
-    'Name:     ' + (data.name    || '—'),
-    'Email:    ' + (data.email   || '—'),
-    'Phone:    ' + (data.phone   || '—'),
-    'Adults:   ' + (data.adults  || '1'),
-    'Children: ' + (data.children|| '0'),
-    'Dietary:  ' + (data.dietary || '—'),
-    'Wishes:   ' + (data.message || '—'),
+    'Name:     ' + (data.name     || '—'),
+    'Email:    ' + (data.email    || '—'),
+    'Phone:    ' + (data.phone    || '—'),
+    'Adults:   ' + (data.adults   || '1'),
+    'Children: ' + (data.children || '0'),
+    'Wishes:   ' + (data.message  || '—'),
     '',
     'Submitted: ' + new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
   ].join('\n');

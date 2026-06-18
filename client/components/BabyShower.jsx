@@ -21,7 +21,6 @@ export default function BabyShower() {
       phone:    form.phone.value.trim(),
       adults:   form.adults.value,
       children: form.children.value,
-      dietary:  form.querySelector('[name="dietary"]:checked').value,
       message:  form.message.value.trim(),
       submittedAt: new Date().toISOString(),
     };
@@ -37,7 +36,7 @@ export default function BabyShower() {
     fetch(GAS_URL, {
       method:  'POST',
       mode:    'no-cors',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body:    JSON.stringify(data),
     })
       .then(() => setStatus('done'))
@@ -129,18 +128,6 @@ export default function BabyShower() {
                 <select id="bs-children" name="children">
                   {['0','1','2','3','4+'].map(n => <option key={n} value={n}>{n}</option>)}
                 </select>
-              </div>
-            </div>
-
-            <div className="bs-form-group">
-              <label>Dietary Preference</label>
-              <div className="bs-radio-group">
-                {['Vegetarian', 'Non-Vegetarian', 'Vegan'].map((opt, i) => (
-                  <label key={opt} className="bs-radio-label">
-                    <input type="radio" name="dietary" value={opt} defaultChecked={i === 0} />
-                    {opt}
-                  </label>
-                ))}
               </div>
             </div>
 
