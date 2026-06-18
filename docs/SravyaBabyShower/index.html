@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="RSVP for Sravya & Venkata Aditya's Seemantham & Gender Reveal — August 16, 2026" />
+  <title>Sravya's Seemantham 🌸 RSVP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset ───────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Lato', sans-serif;
+      background: #FFFDF4;
+      color: #1B4332;
+      min-height: 100vh;
+    }
+
+    /* ── Decorative gold bar ─────────────────────────────────────────────── */
+    .gold-bar {
+      height: 7px;
+      background: linear-gradient(90deg, #9B6A00, #D4A017, #F5C842, #D4A017, #9B6A00);
+    }
+
+    /* ── Page header ─────────────────────────────────────────────────────── */
+    .page-header {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+      background: linear-gradient(180deg, #FFFDF4, #FFF9E6 60%, #FFFDF4);
+    }
+
+    .marigold-row {
+      font-size: 1.4rem;
+      letter-spacing: 0.12em;
+      color: #C8860A;
+      line-height: 1;
+    }
+
+    .header-sub {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #6B8F71;
+      margin: 0.75rem 0 0.25rem;
+    }
+
+    .invite-main-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.4rem, 7vw, 4rem);
+      color: #1B4332;
+      line-height: 1.1;
+      margin: 0.1rem 0;
+    }
+
+    .invite-subtitle {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #C8860A;
+      margin-top: 0.5rem;
+    }
+
+    /* ── Invitation image ────────────────────────────────────────────────── */
+    .invite-image-wrap {
+      max-width: 420px;
+      margin: 2rem auto 1.5rem;
+      padding: 0 1.25rem;
+    }
+
+    .invite-image-wrap img {
+      width: 100%;
+      display: block;
+      border-radius: 14px;
+      border: 4px solid #D4A017;
+      box-shadow: 0 10px 40px rgba(180, 120, 0, 0.22);
+    }
+
+    /* ── Event details banner ────────────────────────────────────────────── */
+    .event-banner {
+      background: #1B4332;
+      color: #FFF9E6;
+      text-align: center;
+      padding: 1.75rem 1rem;
+    }
+
+    .event-banner .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #D4A017;
+      margin-bottom: 0.4rem;
+    }
+
+    .event-date-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #FFF9E6;
+      margin-bottom: 0.2rem;
+    }
+
+    .event-time-text {
+      font-size: 0.95rem;
+      color: #A8D5B5;
+      margin-bottom: 1rem;
+    }
+
+    .event-venue-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #F5C842;
+    }
+
+    .event-venue-addr {
+      font-size: 0.88rem;
+      color: #A8D5B5;
+      margin-top: 0.2rem;
+    }
+
+    .maps-link {
+      display: inline-block;
+      margin-top: 0.75rem;
+      color: #D4A017;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid #D4A017;
+      padding: 0.35rem 1rem;
+      border-radius: 20px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .maps-link:hover {
+      background: #D4A017;
+      color: #1B4332;
+    }
+
+    /* ── RSVP section ────────────────────────────────────────────────────── */
+    .rsvp-section {
+      max-width: 580px;
+      margin: 2.5rem auto 2rem;
+      padding: 2rem 2rem;
+      background: #fff;
+      border: 2px solid #EDD57A;
+      border-radius: 18px;
+      box-shadow: 0 6px 28px rgba(180, 120, 0, 0.1);
+    }
+
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-divider::before,
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #EDD57A;
+    }
+
+    .rsvp-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      text-align: center;
+      color: #1B4332;
+    }
+
+    .rsvp-subtitle {
+      text-align: center;
+      color: #6B8F71;
+      font-size: 0.88rem;
+      margin: 0.4rem 0 2rem;
+    }
+
+    /* ── Form ────────────────────────────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #2D6A4F;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid #C8D8BC;
+      border-radius: 10px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.95rem;
+      color: #1B4332;
+      background: #FDFCF5;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .form-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231B4332' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.9rem center;
+      padding-right: 2.5rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #D4A017;
+      box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.15);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-top: 0.3rem;
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      font-size: 0.92rem;
+      color: #1B4332;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .radio-label input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #C8860A;
+      cursor: pointer;
+    }
+
+    .required { color: #B84A00; }
+
+    /* ── Submit button ───────────────────────────────────────────────────── */
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 0.9rem 1rem;
+      background: linear-gradient(135deg, #9B6A00, #C8860A, #D4A017, #C8860A);
+      background-size: 200% 200%;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Lato', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      margin-top: 1.25rem;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(180, 120, 0, 0.35);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    /* ── Thank-you state ─────────────────────────────────────────────────── */
+    #thank-you {
+      display: none;
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    .ty-emoji { font-size: 3rem; margin-bottom: 0.75rem; }
+
+    .ty-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.4rem;
+      color: #1B4332;
+      margin-bottom: 0.5rem;
+    }
+
+    .ty-text {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: #2D6A4F;
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+
+    /* ── Error banner ────────────────────────────────────────────────────── */
+    #error-msg {
+      display: none;
+      background: #FFF0F0;
+      border: 1px solid #FFAAAA;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: #8B0000;
+      font-size: 0.88rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────────────── */
+    .page-footer {
+      text-align: center;
+      padding: 2rem 1rem 2.5rem;
+      color: #6B8F71;
+      font-size: 0.85rem;
+      line-height: 2;
+    }
+
+    .page-footer .script {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.4rem;
+      color: #1B4332;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* ── Mobile ──────────────────────────────────────────────────────────── */
+    @media (max-width: 500px) {
+      .rsvp-section { margin: 1.5rem 0.75rem; padding: 1.5rem 1.25rem; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gold-bar"></div>
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header class="page-header">
+    <div class="marigold-row">🌼 · 🌸 · 🌼 · 🌸 · 🌼 · 🌸 · 🌼</div>
+    <p class="header-sub">Join us in celebrating</p>
+    <h1 class="invite-main-title">Seemantham</h1>
+    <p class="invite-subtitle">✦ &nbsp; and Gender Reveal &nbsp; ✦</p>
+  </header>
+
+  <!-- ── Invitation image ───────────────────────────────────────────────── -->
+  <div class="invite-image-wrap">
+    <img
+      src="seemantham-invite.jpg"
+      alt="Seemantham invitation — Sravya & Venkata Aditya, 16th August 2026, Golden Meadows Farm"
+    />
+  </div>
+
+  <!-- ── Event details ──────────────────────────────────────────────────── -->
+  <div class="event-banner">
+    <p class="label">📅 Date &amp; Time</p>
+    <p class="event-date-text">16th August 2026</p>
+    <p class="event-time-text">Muhurtham · 11:45 AM</p>
+    <p class="event-venue-name">🏡 Golden Meadows Farm</p>
+    <p class="event-venue-addr">9009 Poplar Tent Rd, Concord, NC 28027</p>
+    <a
+      href="https://maps.google.com/?q=9009+Poplar+Tent+Rd+Concord+NC+28027"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="maps-link"
+    >
+      📍 Open in Maps
+    </a>
+  </div>
+
+  <!-- ── RSVP Form ───────────────────────────────────────────────────────── -->
+  <section class="rsvp-section" id="rsvp">
+    <div class="section-divider">
+      <span style="font-size:1.1rem">🌸</span>
+    </div>
+    <h2 class="rsvp-title">Kindly RSVP</h2>
+    <p class="rsvp-subtitle">Please respond by August 1st, 2026 · We'd love to celebrate with you! 💛</p>
+
+    <form id="rsvp-form" novalidate>
+      <!-- Name -->
+      <div class="form-group">
+        <label for="f-name">Full Name <span class="required">*</span></label>
+        <input id="f-name" type="text" name="name" placeholder="Your full name" required />
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="f-email">Email Address <span class="required">*</span></label>
+        <input id="f-email" type="email" name="email" placeholder="you@example.com" required />
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group">
+        <label for="f-phone">Phone Number <span style="font-weight:300;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input id="f-phone" type="tel" name="phone" placeholder="(704) 555-0000" />
+      </div>
+
+      <!-- Guest count -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-adults">Adults Attending <span class="required">*</span></label>
+          <select id="f-adults" name="adults" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6+">6+</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="f-children">Children</label>
+          <select id="f-children" name="children">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4+">4+</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Dietary -->
+      <div class="form-group">
+        <label>Dietary Preference</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="dietary" value="Vegetarian" checked />
+            Vegetarian
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="dietary" value="Non-Vegetarian" />
+            Non-Vegetarian
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="dietary" value="Vegan" />
+            Vegan
+          </label>
+        </div>
+      </div>
+
+      <!-- Wishes -->
+      <div class="form-group">
+        <label for="f-message">Wishes for Sravya &amp; Venkata Aditya 💛</label>
+        <textarea id="f-message" name="message" rows="3"
+          placeholder="Share your love and blessings for the growing family..."></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">
+        Send RSVP &nbsp; 🌸
+      </button>
+
+      <div id="error-msg">
+        Something went wrong. Please try again or contact us directly at
+        <a href="mailto:venkata@korada.in">venkata@korada.in</a>.
+      </div>
+    </form>
+
+    <!-- Thank-you message (shown after submit) -->
+    <div id="thank-you">
+      <div class="ty-emoji">🌸💛🌼</div>
+      <h3 class="ty-title">Thank you!</h3>
+      <p class="ty-text">
+        Sravya &amp; Venkata Aditya are so grateful for your love and blessings.<br />
+        We can't wait to celebrate this special milestone with you!
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Footer ─────────────────────────────────────────────────────────── -->
+  <footer class="page-footer">
+    <div class="marigold-row">🌸 · 🌼 · 🌸 · 🌼 · 🌸</div>
+    <span class="script">Sravya &amp; Venkata Aditya</span>
+    <span>With love and joy · Concord, NC · 2026</span>
+  </footer>
+
+  <div class="gold-bar"></div>
+
+  <!-- ── RSVP Submission Script ──────────────────────────────────────────── -->
+  <script>
+    // 👇 Paste your Google Apps Script Web App URL here after deploying
+    // See google-apps-script/Code.gs in the repo for setup instructions
+    var GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
+
+    document.getElementById('rsvp-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var form = e.target;
+
+      // Basic validation
+      var name = form.name.value.trim();
+      var email = form.email.value.trim();
+      if (!name || !email) {
+        alert('Please fill in your name and email.');
+        return;
+      }
+
+      // Collect data
+      var data = {
+        name: name,
+        email: email,
+        phone: form.phone.value.trim(),
+        adults: form.adults.value,
+        children: form.children.value,
+        dietary: form.querySelector('[name="dietary"]:checked').value,
+        message: form.message.value.trim(),
+        submittedAt: new Date().toISOString(),
+      };
+
+      // UI: loading state
+      var btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Sending… 🌸';
+
+      if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+        // GAS not yet configured — show thank-you anyway (dev mode)
+        console.log('RSVP data (GAS not configured):', data);
+        showThankYou();
+        return;
+      }
+
+      // Submit to Google Apps Script
+      // mode: no-cors is required for cross-origin GAS requests
+      fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+        .then(function () {
+          showThankYou();
+        })
+        .catch(function () {
+          document.getElementById('error-msg').style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Send RSVP 🌸';
+        });
+    });
+
+    function showThankYou() {
+      document.getElementById('rsvp-form').style.display = 'none';
+      document.getElementById('thank-you').style.display = 'block';
+      window.scrollTo({ top: document.getElementById('rsvp').offsetTop - 20, behavior: 'smooth' });
+    }
+  </script>
+
+</body>
+</html>
