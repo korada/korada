@@ -217,6 +217,21 @@ $white:         #ffffff;
   margin-top: 0.2rem;
 }
 
+.bs-dress {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.4rem 1.1rem;
+  background: rgba(67, 233, 123, 0.12);
+  border: 1px solid #6FCF97;
+  border-radius: 20px;
+  color: #A8D5B5;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+
+  strong { color: #B7F5C8; }
+}
+
 .bs-maps-link {
   display: inline-block;
   margin-top: 0.75rem;

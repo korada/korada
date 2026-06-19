@@ -164,11 +164,13 @@ export default function BabyShower() {
         <p className="bs-time">Muhurtham · 11:45 AM</p>
         <p className="bs-venue-name">🏡 Golden Meadows Farm</p>
         <p className="bs-venue-addr">9009 Poplar Tent Rd, Concord, NC 28027</p>
+        <div><span className="bs-dress">💚 Dress Code: <strong>Greens</strong></span></div>
         <a
           href="https://maps.google.com/?q=9009+Poplar+Tent+Rd+Concord+NC+28027"
           target="_blank"
           rel="noopener noreferrer"
           className="bs-maps-link"
+          style={{ marginTop: '0.85rem' }}
         >
           📍 Open in Maps
         </a>
