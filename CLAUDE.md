@@ -32,14 +32,14 @@ Two things ship from this repo:
    `docs/index.html` + `docs/main.<hash>.js`. Served at `https://korada.in/`
    (custom domain via `docs/CNAME`).
 
-2. **Seemantham RSVP page** — a hand-maintained **static** page at
-   `docs/SravyaBabyShower/index.html` (plus `seemantham-invite.jpg`). It is NOT
-   generated from React. The webpack config preserves it on rebuild via
-   `clean: { keep: /SravyaBabyShower/ }`, so a build won't wipe it.
+2. **Seemantham RSVP page** — a hand-maintained **static** page. Source lives in
+   `static/SravyaBabyShower/` (`index.html` + `seemantham-invite.jpg`). It is NOT
+   generated from React. `build:prod` copies `static/` into `docs/` after webpack
+   runs, so deleting `docs/` entirely and rebuilding always restores it cleanly.
    - A React equivalent (`client/components/BabyShower.jsx` + `BabyShower.scss`)
      is kept in sync for dev/parity, but **the static file is what production
-     serves** at `https://korada.in/SravyaBabyShower`. Edit the static file for
-     any user-facing RSVP change.
+     serves** at `https://korada.in/SravyaBabyShower`. Edit `static/SravyaBabyShower/index.html`
+     for any user-facing RSVP change (then rebuild + commit `docs/`).
 
 ## RSVP backend (Google Apps Script)
 
