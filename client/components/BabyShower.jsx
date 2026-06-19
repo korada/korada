@@ -79,6 +79,11 @@ export default function BabyShower() {
         >
           📍 Open in Maps
         </a>
+        <div style={{ marginTop: '1.25rem' }}>
+          <p className="bs-label" style={{ marginBottom: '0.5rem' }}>🎁 Registry</p>
+          <a href="#" className="bs-maps-link" style={{ margin: '0.4rem 0.3rem 0' }}>Amazon</a>
+          <a href="#" className="bs-maps-link" style={{ margin: '0.4rem 0.3rem 0' }}>Zola</a>
+        </div>
       </div>
 
       {/* ── RSVP card ──────────────────────────────────────────────────── */}
