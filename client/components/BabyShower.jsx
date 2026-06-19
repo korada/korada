@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import inviteImg from '../assets/images/seemantham-invite.jpg';
 import '../assets/css/BabyShower.scss';
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbw1nT7-VcUoYJhyalC_0lmkBABrSiPbqg0Mr23zq2JoVGLKPuFPKOp_NarH0B6bo0fl/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbw-dAHoFVDDEXdCbRWLSN3FuAIKzCsDh1XVBykBTE2lnOpbFfLyinKmJ9zSDaKSX8Tn/exec';
 const STORAGE_KEY = 'seemantham_rsvp_v1';
 
 const PETALS = ['🌸', '🌼', '🌸', '🌷', '🌼', '🌸', '🌼', '🌷', '🌸', '🌼'];
@@ -402,7 +402,7 @@ export default function BabyShower() {
       <footer className="bs-footer">
         <div className="bs-marigold">🌸 · 🌼 · 🌸 · 🌼 · 🌸</div>
         <span className="bs-footer-script">Sravya &amp; Venkata Aditya</span>
-        <span>With love and joy · Concord, NC · 2026</span>
+        <span>With love and joy</span>
       </footer>
 
       <div className="bs-gold-bar" />

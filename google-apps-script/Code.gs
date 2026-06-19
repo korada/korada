@@ -1,6 +1,6 @@
 /**
  * Sravya's Seemantham RSVP — Google Apps Script Backend
- * VERSION 9 — email is the primary key; styled HTML guest emails
+ * VERSION 11 — email is the primary key; styled HTML guest emails
  *             (new / update / cancel) each with a plain-text fallback.
  *
  * ── SETUP ───────────────────────────────────────────────────────────────────
@@ -21,12 +21,12 @@
  *
  *  ── HOW TO CONFIRM THIS VERSION IS LIVE ────────────────────────────────────
  *  Open the /exec URL in a browser. You should see:
- *    { "version": 10, "status": "RSVP endpoint is active" }
+ *    { "version": 11, "status": "RSVP endpoint is active" }
  *  If you see a lower version number, you haven't deployed a new version yet.
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-var SCRIPT_VERSION = 10;
+var SCRIPT_VERSION = 11;
 var SHEET_ID     = '1-Vl-0uW5WhZDwtNg_1l4OveKLCgjKLYbWd4fdCejuvw';
 var SHEET_NAME   = 'RSVPs';
 var NOTIFY_EMAIL = 'korvenadi@gmail.com,sasanapuris@gmail.com';
@@ -431,7 +431,7 @@ function emailShell(headingHtml, innerHtml) {
     goldBar +
   '</div>' +
   '<div style="text-align:center;font-family:Georgia,serif;color:#6B8F71;font-size:11px;padding:14px 0 0">' +
-    'Sravya &amp; Venkata Aditya &middot; Concord, NC &middot; 2026' +
+    'Sravya &amp; Venkata Aditya' +
   '</div>' +
   '</div>';
 }
