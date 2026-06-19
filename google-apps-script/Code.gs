@@ -216,7 +216,7 @@ function formatGuestEmail(data, isUpdate) {
       '<div style="font-weight:600;color:#F5C842;margin-top:10px">🏡 Golden Meadows Farm</div>' +
       '<div style="color:#A8D5B5;font-size:.85rem">9009 Poplar Tent Rd, Concord, NC 28027</div>' +
       '<div style="margin-top:12px;display:inline-block;padding:5px 14px;border:1px solid #6FCF97;' +
-      'border-radius:18px;color:#B7F5C8;font-size:.82rem">💚 Dress Code: <b>Greens</b></div>' +
+      'border-radius:18px;color:#B7F5C8;font-size:.82rem">💚 Dress Code: <b>Green</b></div>' +
     '</div>' +
     '<div style="padding:0 28px 24px;text-align:center;font-size:13px;color:#6B8F71">' +
       '<p>Need to change your response? You can ' +
