@@ -708,10 +708,6 @@
     function saveLocal(data) {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
     }
-    function makeId() {
-      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-      return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
-    }
     function esc(s) {
       return String(s == null ? '' : s)
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -812,17 +808,15 @@
       }
 
       var saved = getSaved();
+      var isUpdate = !!(saved && saved.email);
       var data = {
-        id:       (saved && saved.id) ? saved.id : makeId(),
         name:     name,
         email:    email,
         phone:    form.phone.value.trim(),
         adults:   form.adults.value,
         children: form.children.value,
         message:  form.message.value.trim(),
-        submittedAt: new Date().toISOString(),
       };
-      var isUpdate = !!(saved && saved.id);
 
       btn.disabled = true;
       btn.textContent = isUpdate ? 'Updating… 🌸' : 'Sending… 🌸';

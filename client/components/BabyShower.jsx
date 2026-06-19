@@ -14,10 +14,6 @@ function getSaved() {
 function saveLocal(data) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
 }
-function makeId() {
-  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-  return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
-}
 function partyText(d) {
   const a = d.adults || '1';
   let s = `${a} adult${a === '1' ? '' : 's'}`;
@@ -92,16 +88,14 @@ export default function BabyShower() {
     if (!name || !email) { alert('Please fill in your name and email.'); return; }
 
     const prior = getSaved();
-    const isUpdate = !!(prior && prior.id);
+    const isUpdate = !!(prior && prior.email);
     const data = {
-      id: prior && prior.id ? prior.id : makeId(),
       name,
       email,
       phone: form.phone.value.trim(),
       adults: form.adults.value,
       children: form.children.value,
       message: form.message.value.trim(),
-      submittedAt: new Date().toISOString(),
     };
 
     setStatus('submitting');
