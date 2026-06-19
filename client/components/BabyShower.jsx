@@ -180,8 +180,8 @@ export default function BabyShower() {
         </a>
         <div style={{ marginTop: '1.25rem' }}>
           <p className="bs-label" style={{ marginBottom: '0.5rem' }}>🎁 Registry</p>
-          <a href="#" className="bs-maps-link" style={{ margin: '0.4rem 0.3rem 0' }}>Amazon</a>
-          <a href="#" className="bs-maps-link" style={{ margin: '0.4rem 0.3rem 0' }}>Zola</a>
+          <a href="https://www.amazon.com/baby-reg/venkata-korada-september-2026-charlotte/255JAWY1MXX5X?ref_=cm_sw_r_apin_dp_99CX83V36RXR4GBK1FMB&language=en-US" target="_blank" rel="noopener noreferrer" className="bs-maps-link" style={{ margin: '0.4rem 0.3rem 0' }}>Amazon</a>
+          <a href="https://www.target.com/gift-registry/gift/sravya-venkata-aditya" target="_blank" rel="noopener noreferrer" className="bs-maps-link" style={{ margin: '0.4rem 0.3rem 0' }}>Target</a>
         </div>
       </div>
 
