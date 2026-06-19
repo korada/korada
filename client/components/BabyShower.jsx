@@ -3,7 +3,7 @@ import inviteImg from '../assets/images/seemantham-invite.jpg';
 import '../assets/css/BabyShower.scss';
 
 // 👇 After deploying the Google Apps Script, paste your Web App URL here
-const GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzI9DrVsevBS3jsbK419GDYH2IlSlS1RR62SeNzzQIOSUyGDOXUJJ32vgf7Kxa-fZEn/exec';
 
 export default function BabyShower() {
   const [status, setStatus] = useState('idle'); // idle | submitting | done | error
