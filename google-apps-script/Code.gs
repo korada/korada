@@ -1,6 +1,6 @@
 /**
  * Sravya's Seemantham RSVP — Google Apps Script Backend
- * VERSION 7 — email is the primary key; styled HTML guest emails
+ * VERSION 8 — email is the primary key; styled HTML guest emails
  *             (new / update / cancel) each with a plain-text fallback.
  *
  * ── SETUP ───────────────────────────────────────────────────────────────────
@@ -21,12 +21,12 @@
  *
  *  ── HOW TO CONFIRM THIS VERSION IS LIVE ────────────────────────────────────
  *  Open the /exec URL in a browser. You should see:
- *    { "version": 7, "status": "RSVP endpoint is active" }
+ *    { "version": 8, "status": "RSVP endpoint is active" }
  *  If you see a lower version number, you haven't deployed a new version yet.
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-var SCRIPT_VERSION = 7;
+var SCRIPT_VERSION = 8;
 var SHEET_ID     = '1-Vl-0uW5WhZDwtNg_1l4OveKLCgjKLYbWd4fdCejuvw';
 var SHEET_NAME   = 'RSVPs';
 var NOTIFY_EMAIL = 'korvenadi@gmail.com,sasanapuris@gmail.com';
@@ -50,7 +50,9 @@ function doPost(e) {
     if (e && e.postData && e.postData.contents) {
       try { data = JSON.parse(e.postData.contents); } catch (ignore) {}
     }
-    if (e && e.parameter && !data.name) {
+    // Only fall back to form params if the JSON body was empty/unparseable —
+    // never overwrite a parsed body (that used to wipe action='cancel').
+    if ((!data || !Object.keys(data).length) && e && e.parameter) {
       data = e.parameter;
     }
 
@@ -75,10 +77,14 @@ function doPost(e) {
       if (NOTIFY_EMAIL) {
         MailApp.sendEmail(
           NOTIFY_EMAIL,
-          'RSVP cancelled by ' + (name || email),
-          "An RSVP was CANCELLED for Sravya's Seemantham.\n\nName:  " + name +
-          "\nEmail: " + email + "\n\nTime: " + now
+          (name || email) + ' has removed their RSVP - Seemantham',
+          (name || 'A guest') + ' has REMOVED their RSVP for Sravya\'s Seemantham.\n\n' +
+          'Name:  ' + (name || '-') + '\n' +
+          'Email: ' + (email || '-') + '\n\n' +
+          'Their row has been deleted from the sheet.\n\n' +
+          'Time: ' + now
         );
+        Logger.log('Host cancel notification sent to ' + NOTIFY_EMAIL);
       }
       var cancelEmailSent = false;
       var cancelEmailError = '';
@@ -279,8 +285,6 @@ function cancelEmailPlain(name) {
     "We are so sad to hear that you won't be able to join us for our Seemantham.",
     'Your RSVP has been successfully removed from our list.',
     '',
-    "We'll miss you dearly and will keep you in our thoughts and prayers on this special day.",
-    '',
     "If your plans change, you're always welcome to RSVP again:",
     RSVP_PAGE,
     '',
@@ -368,9 +372,7 @@ function cancelEmailHtml(name) {
   var inner =
     '<p style="margin:8px 0">Dear ' + escapeHtml(firstName) + ',</p>' +
     '<p style="margin:8px 0">We are so sad to hear that you won\'t be able to join us for our ' +
-      'Seemantham. Your RSVP has been removed from our list.</p>' +
-    '<p style="margin:8px 0">We\'ll miss you dearly and will keep you in our thoughts and ' +
-      'prayers on this special day. &#128153;</p>' +
+      'Seemantham. Your RSVP has been removed from our list. &#128153;</p>' +
     '<div style="text-align:center;margin:20px 0">' +
       '<a href="' + RSVP_PAGE + '" style="display:inline-block;padding:11px 26px;' +
         'background:linear-gradient(135deg,#9B6A00,#C8860A,#D4A017);color:#FFFFFF;' +

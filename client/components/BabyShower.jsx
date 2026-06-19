@@ -237,8 +237,7 @@ export default function BabyShower() {
             <div className="bs-ty-emoji">💔</div>
             <h3 className="bs-ty-title">RSVP Removed</h3>
             <p className="bs-ty-text">
-              We're so sad you won't be joining us.<br />
-              We'll miss you and keep you in our thoughts. 💛
+              We're so sad you won't be joining us. 💛
             </p>
             <p className="bs-ty-edit">
               Changed your mind?{' '}
