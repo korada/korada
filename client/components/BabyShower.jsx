@@ -151,6 +151,8 @@ export default function BabyShower() {
 
       {/* ── Invite image ───────────────────────────────────────────────── */}
       <div className="bs-img-wrap bs-animate-in bs-delay-1">
+        <span className="bs-img-flower bs-img-flower-left" aria-hidden="true">🌸</span>
+        <span className="bs-img-flower bs-img-flower-right" aria-hidden="true">🌸</span>
         <img
           src={inviteImg}
           alt="Seemantham invitation — Sravya & Venkata Aditya, 16th August 2026"
