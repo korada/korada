@@ -98,17 +98,24 @@ function doPost(e) {
     // (b) Confirmation email to the guest
     if (isEmail(data.email)) {
       try {
+        var guestSubject = isUpdate
+          ? 'Your RSVP has been updated - Sravya & Venkata Aditya Seemantham'
+          : 'Your RSVP is confirmed - Sravya & Venkata Aditya Seemantham';
+        var guestPlain = formatGuestEmailPlain(data, isUpdate);
         MailApp.sendEmail({
           to:       data.email,
-          subject:  isUpdate
-            ? '🌸 Your RSVP has been updated — Sravya & Venkata Aditya'
-            : '🌸 Your RSVP is confirmed — Sravya & Venkata Aditya',
+          subject:  guestSubject,
+          body:     guestPlain,
           htmlBody: formatGuestEmail(data, isUpdate),
           name:     'Sravya & Venkata Aditya',
+          replyTo:  'korvenadi@gmail.com',
         });
+        Logger.log('Guest email sent to: ' + data.email);
       } catch (mailErr) {
-        Logger.log('Guest email failed: ' + mailErr.toString());
+        Logger.log('Guest email FAILED for ' + data.email + ': ' + mailErr.toString());
       }
+    } else {
+      Logger.log('Guest email skipped — invalid/missing email: "' + data.email + '"');
     }
 
     return jsonResponse({ success: true, id: id, updated: isUpdate });
@@ -181,6 +188,71 @@ function formatOwnerEmail(data, isUpdate) {
     '',
     'Time: ' + new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
   ].join('\n');
+}
+
+// Plain-text fallback (required alongside htmlBody for reliable delivery)
+function formatGuestEmailPlain(data, isUpdate) {
+  var firstName = (data.name || 'Friend').split(' ')[0];
+  var adults    = data.adults   || '1';
+  var kids      = data.children || '0';
+  var party     = adults + ' adult' + (adults === '1' ? '' : 's') +
+                  (kids !== '0' ? ', ' + kids + ' child' + (kids === '1' ? '' : 'ren') : '');
+  var lines = [
+    isUpdate ? 'Your RSVP has been updated!' : 'Thank you for your RSVP!',
+    '',
+    'Dear ' + firstName + ',',
+    '',
+    isUpdate
+      ? 'We have updated your RSVP. Here is what we have on file:'
+      : 'We are so happy you will be joining us! Here is a copy of your RSVP:',
+    '',
+    'Party: ' + party,
+  ];
+  if (data.message) lines.push('Your wishes: ' + data.message);
+  lines.push(
+    '',
+    'Event Details',
+    '--------------',
+    'Date:     16th August 2026',
+    'Time:     Muhurtham · 11:45 AM',
+    'Venue:    Golden Meadows Farm',
+    'Address:  9009 Poplar Tent Rd, Concord, NC 28027',
+    'Dress:    Green',
+    '',
+    'Need to change your response? Visit: ' + RSVP_PAGE,
+    '',
+    'With love and joy,',
+    'Sravya & Venkata Aditya'
+  );
+  return lines.join('\n');
+}
+
+// ── Manual test — run this directly in the Apps Script editor to verify ──────
+// 1. Open script.google.com → your project
+// 2. Select "testGuestEmail" from the function dropdown → Run
+// 3. Check Execution Log for success/failure and your inbox
+function testGuestEmail() {
+  var testData = {
+    name:     'Test Guest',
+    email:    'korvenadi@gmail.com',  // sends to yourself for testing
+    phone:    '',
+    adults:   '2',
+    children: '1',
+    message:  'Testing the guest confirmation email!',
+  };
+  var plain = formatGuestEmailPlain(testData, false);
+  var html  = formatGuestEmail(testData, false);
+  Logger.log('Plain text:\n' + plain);
+  Logger.log('HTML length: ' + html.length);
+  MailApp.sendEmail({
+    to:       testData.email,
+    subject:  'TEST — Your RSVP is confirmed - Sravya & Venkata Aditya Seemantham',
+    body:     plain,
+    htmlBody: html,
+    name:     'Sravya & Venkata Aditya',
+    replyTo:  'korvenadi@gmail.com',
+  });
+  Logger.log('Test email sent successfully to ' + testData.email);
 }
 
 function formatGuestEmail(data, isUpdate) {
