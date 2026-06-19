@@ -504,3 +504,58 @@ function testGuestEmailCancel() {
   });
   Logger.log('Sent CANCEL test to ' + TEST_EMAIL);
 }
+
+// ── DIAGNOSTICS ──────────────────────────────────────────────────────────────
+// Run these in the editor (select from the dropdown → Run) and read View → Logs.
+// They isolate WHERE things break: spreadsheet access, sheet write, or doPost.
+
+// 1) Can the script even open the spreadsheet + sheet? Lists every tab name.
+//    If SHEET_ID is wrong this THROWS. If SHEET_NAME ('RSVPs') doesn't match a
+//    real tab, getSheet() silently CREATES a new empty 'RSVPs' tab — so your
+//    real RSVPs would be landing in a brand-new tab you're not looking at.
+function testSheetAccess() {
+  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
+  Logger.log('Spreadsheet opened: "' + ss.getName() + '"');
+  var tabs = ss.getSheets().map(function (s) {
+    return s.getName() + ' (rows=' + s.getLastRow() + ')';
+  });
+  Logger.log('Tabs in this spreadsheet: ' + JSON.stringify(tabs));
+  Logger.log('Looking for SHEET_NAME = "' + SHEET_NAME + '"');
+  var found = ss.getSheetByName(SHEET_NAME);
+  Logger.log(found
+    ? 'FOUND tab "' + SHEET_NAME + '" with ' + found.getLastRow() + ' rows.'
+    : 'TAB "' + SHEET_NAME + '" DOES NOT EXIST — getSheet() will create an empty one.');
+}
+
+// 2) Write one obvious row straight to the sheet, bypassing doPost entirely.
+//    If THIS row shows up, sheet writes work and the problem is in request
+//    parsing. If it doesn't, the problem is sheet access / SHEET_NAME.
+function testSheetWrite() {
+  var sheet = getSheet();
+  ensureHeader(sheet);
+  var now = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+  sheet.appendRow([now, 'DIRECT WRITE TEST', 'direct-test@example.com', '000', '1', '0', 'wrote directly', now]);
+  Logger.log('Appended a DIRECT WRITE TEST row. Sheet now has ' + sheet.getLastRow() + ' rows.');
+  Logger.log('Tab written to: "' + sheet.getName() + '" in spreadsheet "' + sheet.getParent().getName() + '"');
+}
+
+// 3) Simulate a real browser submission through the FULL doPost path.
+//    This is exactly what the website sends. Check the sheet AND your inbox
+//    afterward, and read the logs for "doPost received / Appended / Updated".
+function testFullSubmission() {
+  var fakeEvent = {
+    postData: {
+      contents: JSON.stringify({
+        name: 'Full Path Test',
+        email: TEST_EMAIL,
+        phone: '555-0100',
+        adults: '2',
+        children: '1',
+        message: 'Submitted via testFullSubmission',
+      }),
+      type: 'application/json',
+    },
+  };
+  var out = doPost(fakeEvent);
+  Logger.log('doPost returned: ' + out.getContent());
+}
