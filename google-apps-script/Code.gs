@@ -97,14 +97,18 @@ function doPost(e) {
 
     // (b) Confirmation email to the guest
     if (isEmail(data.email)) {
-      MailApp.sendEmail({
-        to:       data.email,
-        subject:  isUpdate
-          ? '🌸 Your RSVP has been updated — Sravya & Venkata Aditya'
-          : '🌸 Your RSVP is confirmed — Sravya & Venkata Aditya',
-        htmlBody: formatGuestEmail(data, isUpdate),
-        name:     'Sravya & Venkata Aditya',
-      });
+      try {
+        MailApp.sendEmail({
+          to:       data.email,
+          subject:  isUpdate
+            ? '🌸 Your RSVP has been updated — Sravya & Venkata Aditya'
+            : '🌸 Your RSVP is confirmed — Sravya & Venkata Aditya',
+          htmlBody: formatGuestEmail(data, isUpdate),
+          name:     'Sravya & Venkata Aditya',
+        });
+      } catch (mailErr) {
+        Logger.log('Guest email failed: ' + mailErr.toString());
+      }
     }
 
     return jsonResponse({ success: true, id: id, updated: isUpdate });
