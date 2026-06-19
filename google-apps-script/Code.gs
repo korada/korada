@@ -1,6 +1,7 @@
 /**
  * Sravya's Seemantham RSVP — Google Apps Script Backend
- * VERSION 5 — email is the primary key; no UUID; plain-text guest email
+ * VERSION 7 — email is the primary key; styled HTML guest emails
+ *             (new / update / cancel) each with a plain-text fallback.
  *
  * ── SETUP ───────────────────────────────────────────────────────────────────
  *
@@ -20,12 +21,12 @@
  *
  *  ── HOW TO CONFIRM THIS VERSION IS LIVE ────────────────────────────────────
  *  Open the /exec URL in a browser. You should see:
- *    { "version": 5, "status": "RSVP endpoint is active" }
+ *    { "version": 7, "status": "RSVP endpoint is active" }
  *  If you see a lower version number, you haven't deployed a new version yet.
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-var SCRIPT_VERSION = 6;
+var SCRIPT_VERSION = 7;
 var SHEET_ID     = '1-Vl-0uW5WhZDwtNg_1l4OveKLCgjKLYbWd4fdCejuvw';
 var SHEET_NAME   = 'RSVPs';
 var NOTIFY_EMAIL = 'korvenadi@gmail.com,sasanapuris@gmail.com';
@@ -79,18 +80,31 @@ function doPost(e) {
           "\nEmail: " + email + "\n\nTime: " + now
         );
       }
+      var cancelEmailSent = false;
+      var cancelEmailError = '';
       if (isEmail(email)) {
         try {
-          MailApp.sendEmail(email,
-            'We\'re sad to see you go - Sravya & Venkata Aditya Seemantham',
-            formatCancelEmail(name)
-          );
+          MailApp.sendEmail({
+            to:       email,
+            subject:  "We're sad to see you go - Sravya & Venkata Aditya Seemantham",
+            body:     cancelEmailPlain(name),
+            htmlBody: cancelEmailHtml(name),
+            name:     'Sravya & Venkata Aditya',
+          });
+          cancelEmailSent = true;
           Logger.log('Cancel confirmation sent to ' + email);
         } catch (mailErr) {
-          Logger.log('Cancel email failed: ' + mailErr.toString());
+          cancelEmailError = mailErr.toString();
+          Logger.log('Cancel email FAILED: ' + cancelEmailError);
         }
       }
-      return jsonResponse({ success: true, cancelled: true, version: SCRIPT_VERSION });
+      return jsonResponse({
+        success: true,
+        cancelled: true,
+        guestEmailSent: cancelEmailSent,
+        guestEmailError: cancelEmailError,
+        version: SCRIPT_VERSION,
+      });
     }
 
     var phone    = data.phone    || '';
@@ -129,7 +143,13 @@ function doPost(e) {
         var subject = isUpdate
           ? 'Your RSVP has been updated - Sravya & Venkata Aditya Seemantham'
           : 'Your RSVP is confirmed - Sravya & Venkata Aditya Seemantham';
-        MailApp.sendEmail(email, subject, formatGuestEmail(data, isUpdate));
+        MailApp.sendEmail({
+          to:       email,
+          subject:  subject,
+          body:     guestEmailPlain(data, isUpdate),
+          htmlBody: guestEmailHtml(data, isUpdate),
+          name:     'Sravya & Venkata Aditya',
+        });
         guestEmailSent = true;
         Logger.log('Guest email sent to ' + email);
       } catch (mailErr) {
@@ -210,33 +230,16 @@ function formatOwnerEmail(data, isUpdate) {
   ].join('\n');
 }
 
-function formatCancelEmail(name) {
-  var firstName = (name || 'Friend').split(' ')[0];
-  return [
-    'Your RSVP has been removed.',
-    '',
-    'Dear ' + firstName + ',',
-    '',
-    "We are so sad to hear that you won't be able to join us for our Seemantham.",
-    'Your RSVP has been successfully removed from our list.',
-    '',
-    "We'll miss you dearly and will keep you in our thoughts and prayers on this special day.",
-    '',
-    "If your plans change, you're always welcome to RSVP again:",
-    RSVP_PAGE,
-    '',
-    'With love and best wishes,',
-    'Sravya & Venkata Aditya',
-  ].join('\n');
+function partyText(data) {
+  var adults = data.adults   || '1';
+  var kids   = data.children || '0';
+  return adults + ' adult' + (adults === '1' ? '' : 's') +
+         (kids !== '0' ? ', ' + kids + ' child' + (kids === '1' ? '' : 'ren') : '');
 }
 
-function formatGuestEmail(data, isUpdate) {
+// ── Plain-text fallbacks (delivered alongside the HTML versions) ─────────────
+function guestEmailPlain(data, isUpdate) {
   var firstName = (data.name || 'Friend').split(' ')[0];
-  var adults    = data.adults   || '1';
-  var kids      = data.children || '0';
-  var party     = adults + ' adult' + (adults === '1' ? '' : 's') +
-                  (kids !== '0' ? ', ' + kids + ' child' + (kids === '1' ? '' : 'ren') : '');
-
   var lines = [
     isUpdate ? 'Your RSVP has been updated!' : 'Thank you for your RSVP!',
     '',
@@ -246,7 +249,7 @@ function formatGuestEmail(data, isUpdate) {
       ? "We've updated your RSVP. Here's what we have on file:"
       : "We are so happy you'll be joining us to celebrate this special milestone! Here's a copy of your RSVP:",
     '',
-    'Party:    ' + party,
+    'Party:    ' + partyText(data),
   ];
   if (data.message) lines.push('Wishes:   ' + data.message);
   lines.push(
@@ -266,6 +269,126 @@ function formatGuestEmail(data, isUpdate) {
   return lines.join('\n');
 }
 
+function cancelEmailPlain(name) {
+  var firstName = (name || 'Friend').split(' ')[0];
+  return [
+    'Your RSVP has been removed.',
+    '',
+    'Dear ' + firstName + ',',
+    '',
+    "We are so sad to hear that you won't be able to join us for our Seemantham.",
+    'Your RSVP has been successfully removed from our list.',
+    '',
+    "We'll miss you dearly and will keep you in our thoughts and prayers on this special day.",
+    '',
+    "If your plans change, you're always welcome to RSVP again:",
+    RSVP_PAGE,
+    '',
+    'With love and best wishes,',
+    'Sravya & Venkata Aditya',
+  ].join('\n');
+}
+
+// ── Styled HTML emails (theme matches the RSVP site: green + gold) ───────────
+//
+// emailShell wraps inner content in the bordered card with shimmering gold
+// bars and a marigold/flower header, exactly like the site's look.
+function emailShell(headingHtml, innerHtml) {
+  var goldBar = '<div style="height:7px;line-height:7px;font-size:0;' +
+    'background:linear-gradient(90deg,#9B6A00,#D4A017,#F5C842,#D4A017,#9B6A00)">&nbsp;</div>';
+  return '' +
+  '<div style="margin:0;padding:24px 12px;background:#FFFDF4">' +
+  '<div style="font-family:Georgia,\'Playfair Display\',serif;max-width:540px;margin:0 auto;' +
+    'background:#FFFFFF;border:1px solid #EDD57A;border-radius:16px;overflow:hidden;color:#1B4332">' +
+    goldBar +
+    '<div style="padding:28px 28px 6px;text-align:center">' +
+      '<div style="font-size:22px;letter-spacing:.08em">&#127804; &middot; &#127800; &middot; &#127804; &middot; &#127800; &middot; &#127804;</div>' +
+      '<h1 style="font-family:\'Dancing Script\',\'Brush Script MT\',cursive;color:#1B4332;' +
+        'font-size:30px;font-weight:700;margin:10px 0 0">' + headingHtml + '</h1>' +
+    '</div>' +
+    '<div style="padding:4px 28px 8px;font-size:15px;line-height:1.7;color:#2D6A4F">' + innerHtml + '</div>' +
+    goldBar +
+  '</div>' +
+  '<div style="text-align:center;font-family:Georgia,serif;color:#6B8F71;font-size:11px;padding:14px 0 0">' +
+    'Sravya &amp; Venkata Aditya &middot; Concord, NC &middot; 2026' +
+  '</div>' +
+  '</div>';
+}
+
+function eventDetailsCard() {
+  return '' +
+  '<div style="margin:18px 0 6px;background:#1B4332;color:#FFF9E6;border-radius:12px;padding:20px;text-align:center">' +
+    '<div style="font-size:11px;letter-spacing:.25em;color:#D4A017;text-transform:uppercase">&#128197; Date &amp; Time</div>' +
+    '<div style="font-size:21px;font-weight:600;margin:6px 0 2px;color:#FFF9E6">16th August 2026</div>' +
+    '<div style="color:#A8D5B5;font-size:14px">Muhurtham &middot; 11:45 AM</div>' +
+    '<div style="margin:12px 0 2px"><span style="display:inline-block;padding:5px 14px;' +
+      'border:1px solid #6FCF97;border-radius:18px;color:#B7F5C8;font-size:13px">' +
+      '&#128154; Dress Code: <b>Green</b></span></div>' +
+    '<div style="font-weight:600;color:#F5C842;font-size:16px;margin-top:14px">&#127969; Golden Meadows Farm</div>' +
+    '<div style="color:#A8D5B5;font-size:13px">9009 Poplar Tent Rd, Concord, NC 28027</div>' +
+  '</div>';
+}
+
+function summaryRow(label, value) {
+  return '<tr>' +
+    '<td style="padding:8px 10px;border-bottom:1px solid #EDD57A;color:#6B8F71;font-size:13px;' +
+      'width:38%;vertical-align:top">' + escapeHtml(label) + '</td>' +
+    '<td style="padding:8px 10px;border-bottom:1px solid #EDD57A;font-weight:600;color:#1B4332">' +
+      escapeHtml(value) + '</td></tr>';
+}
+
+function guestEmailHtml(data, isUpdate) {
+  var firstName = (data.name || 'Friend').split(' ')[0];
+  var heading   = isUpdate ? 'Your RSVP is updated!' : 'Thank you for your RSVP!';
+
+  var inner =
+    '<p style="margin:8px 0">Dear ' + escapeHtml(firstName) + ',</p>' +
+    '<p style="margin:8px 0">' + (isUpdate
+      ? "We've updated your RSVP. Here's what we have on file:"
+      : "We are so happy you'll be joining us to celebrate this special milestone! " +
+        "Here's a copy of your RSVP:") + '</p>' +
+    '<table style="width:100%;border-collapse:collapse;margin:14px 0">' +
+      summaryRow('Name', data.name || firstName) +
+      summaryRow('Attending', partyText(data)) +
+      (data.message ? summaryRow('Your wishes', data.message) : '') +
+    '</table>' +
+    eventDetailsCard() +
+    '<p style="text-align:center;font-size:13px;color:#6B8F71;margin:16px 0 4px">' +
+      'Need to change your response? You can ' +
+      '<a href="' + RSVP_PAGE + '" style="color:#C8860A;font-weight:600;text-decoration:none">' +
+      'edit or remove your RSVP here</a>.</p>' +
+    '<p style="text-align:center;font-family:\'Dancing Script\',cursive;font-size:20px;' +
+      'color:#1B4332;margin:14px 0 8px">With love and joy,<br>Sravya &amp; Venkata Aditya &#128153;</p>';
+
+  return emailShell(heading, inner);
+}
+
+function cancelEmailHtml(name) {
+  var firstName = (name || 'Friend').split(' ')[0];
+  var inner =
+    '<p style="margin:8px 0">Dear ' + escapeHtml(firstName) + ',</p>' +
+    '<p style="margin:8px 0">We are so sad to hear that you won\'t be able to join us for our ' +
+      'Seemantham. Your RSVP has been removed from our list.</p>' +
+    '<p style="margin:8px 0">We\'ll miss you dearly and will keep you in our thoughts and ' +
+      'prayers on this special day. &#128153;</p>' +
+    '<div style="text-align:center;margin:20px 0">' +
+      '<a href="' + RSVP_PAGE + '" style="display:inline-block;padding:11px 26px;' +
+        'background:linear-gradient(135deg,#9B6A00,#C8860A,#D4A017);color:#FFFFFF;' +
+        'border-radius:50px;font-weight:700;font-size:14px;text-decoration:none">' +
+        'Changed your mind? RSVP again</a>' +
+    '</div>' +
+    '<p style="text-align:center;font-family:\'Dancing Script\',cursive;font-size:20px;' +
+      'color:#1B4332;margin:14px 0 8px">With love and best wishes,<br>Sravya &amp; Venkata Aditya</p>';
+
+  return emailShell('We\'ll miss you!', inner);
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function jsonResponse(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
@@ -273,13 +396,32 @@ function jsonResponse(obj) {
 }
 
 // ── Manual tests — select in the editor dropdown and click Run ───────────────
+// Each sends the real styled HTML (with plain-text fallback) to yourself.
+var TEST_EMAIL = 'korvenadi@gmail.com';
+
 function testGuestEmailNew() {
-  var data = { name: 'Test Guest', email: 'korvenadi@gmail.com', adults: '2', children: '1', message: 'Congrats!' };
-  MailApp.sendEmail(data.email, 'TEST - RSVP confirmed - Seemantham', formatGuestEmail(data, false));
-  Logger.log('Sent new-RSVP test to ' + data.email);
+  var data = { name: 'Test Guest', email: TEST_EMAIL, adults: '2', children: '1', message: 'So excited for you both!' };
+  MailApp.sendEmail({
+    to: TEST_EMAIL, subject: 'TEST - RSVP confirmed - Seemantham',
+    body: guestEmailPlain(data, false), htmlBody: guestEmailHtml(data, false),
+    name: 'Sravya & Venkata Aditya',
+  });
+  Logger.log('Sent NEW-RSVP test to ' + TEST_EMAIL);
 }
 function testGuestEmailUpdate() {
-  var data = { name: 'Test Guest', email: 'korvenadi@gmail.com', adults: '3', children: '0', message: '' };
-  MailApp.sendEmail(data.email, 'TEST - RSVP updated - Seemantham', formatGuestEmail(data, true));
-  Logger.log('Sent update-RSVP test to ' + data.email);
+  var data = { name: 'Test Guest', email: TEST_EMAIL, adults: '3', children: '0', message: '' };
+  MailApp.sendEmail({
+    to: TEST_EMAIL, subject: 'TEST - RSVP updated - Seemantham',
+    body: guestEmailPlain(data, true), htmlBody: guestEmailHtml(data, true),
+    name: 'Sravya & Venkata Aditya',
+  });
+  Logger.log('Sent UPDATE-RSVP test to ' + TEST_EMAIL);
+}
+function testGuestEmailCancel() {
+  MailApp.sendEmail({
+    to: TEST_EMAIL, subject: 'TEST - RSVP removed - Seemantham',
+    body: cancelEmailPlain('Test Guest'), htmlBody: cancelEmailHtml('Test Guest'),
+    name: 'Sravya & Venkata Aditya',
+  });
+  Logger.log('Sent CANCEL test to ' + TEST_EMAIL);
 }
