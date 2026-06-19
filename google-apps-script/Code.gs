@@ -25,7 +25,7 @@
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-var SCRIPT_VERSION = 5;
+var SCRIPT_VERSION = 6;
 var SHEET_ID     = '1-Vl-0uW5WhZDwtNg_1l4OveKLCgjKLYbWd4fdCejuvw';
 var SHEET_NAME   = 'RSVPs';
 var NOTIFY_EMAIL = 'korvenadi@gmail.com,sasanapuris@gmail.com';
@@ -58,9 +58,41 @@ function doPost(e) {
     var sheet = getSheet();
     ensureHeader(sheet);
 
-    var now  = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
-    var name     = data.name     || '';
-    var email    = data.email    || '';
+    var now   = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+    var name  = (data.name  || '').trim();
+    var email = (data.email || '').trim();
+
+    // ── Cancel / remove RSVP ───────────────────────────────────────────────
+    if (data.action === 'cancel') {
+      var cancelRow = isEmail(email) ? findRowByEmail(sheet, email) : -1;
+      if (cancelRow < 0) {
+        return jsonResponse({ success: false, error: 'No RSVP found for that email.', version: SCRIPT_VERSION });
+      }
+      sheet.deleteRow(cancelRow);
+      Logger.log('Deleted row ' + cancelRow + ' for ' + email);
+
+      if (NOTIFY_EMAIL) {
+        MailApp.sendEmail(
+          NOTIFY_EMAIL,
+          'RSVP cancelled by ' + (name || email),
+          "An RSVP was CANCELLED for Sravya's Seemantham.\n\nName:  " + name +
+          "\nEmail: " + email + "\n\nTime: " + now
+        );
+      }
+      if (isEmail(email)) {
+        try {
+          MailApp.sendEmail(email,
+            'We\'re sad to see you go - Sravya & Venkata Aditya Seemantham',
+            formatCancelEmail(name)
+          );
+          Logger.log('Cancel confirmation sent to ' + email);
+        } catch (mailErr) {
+          Logger.log('Cancel email failed: ' + mailErr.toString());
+        }
+      }
+      return jsonResponse({ success: true, cancelled: true, version: SCRIPT_VERSION });
+    }
+
     var phone    = data.phone    || '';
     var adults   = data.adults   || '1';
     var children = data.children || '0';
@@ -175,6 +207,26 @@ function formatOwnerEmail(data, isUpdate) {
     'Wishes:   ' + (data.message  || '-'),
     '',
     'Time: ' + new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
+  ].join('\n');
+}
+
+function formatCancelEmail(name) {
+  var firstName = (name || 'Friend').split(' ')[0];
+  return [
+    'Your RSVP has been removed.',
+    '',
+    'Dear ' + firstName + ',',
+    '',
+    "We are so sad to hear that you won't be able to join us for our Seemantham.",
+    'Your RSVP has been successfully removed from our list.',
+    '',
+    "We'll miss you dearly and will keep you in our thoughts and prayers on this special day.",
+    '',
+    "If your plans change, you're always welcome to RSVP again:",
+    RSVP_PAGE,
+    '',
+    'With love and best wishes,',
+    'Sravya & Venkata Aditya',
   ].join('\n');
 }
 

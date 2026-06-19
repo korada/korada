@@ -80,6 +80,25 @@ export default function BabyShower() {
     if (saved) setView('banner');
   }
 
+  function handleRemove() {
+    if (!window.confirm("Are you sure you want to remove your RSVP?\n\nWe'll be so sad to see you go!")) return;
+    const current = getSaved();
+    setStatus('submitting');
+    fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'cancel', email: current.email, name: current.name }),
+    })
+      .then(() => {
+        localStorage.removeItem(STORAGE_KEY);
+        setSaved(null);
+        setStatus('idle');
+        setView('removed');
+      })
+      .catch(() => setStatus('error'));
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     const form = e.target;
@@ -206,6 +225,25 @@ export default function BabyShower() {
             <button type="button" className="bs-edit-btn" onClick={startEdit}>
               ✏️ Edit my RSVP
             </button>
+            <br />
+            <button type="button" className="bs-remove-btn" onClick={handleRemove} disabled={status === 'submitting'}>
+              {status === 'submitting' ? 'Removing…' : 'Remove my RSVP'}
+            </button>
+          </div>
+        )}
+
+        {view === 'removed' && (
+          <div className="bs-thankyou">
+            <div className="bs-ty-emoji">💔</div>
+            <h3 className="bs-ty-title">RSVP Removed</h3>
+            <p className="bs-ty-text">
+              We're so sad you won't be joining us.<br />
+              We'll miss you and keep you in our thoughts. 💛
+            </p>
+            <p className="bs-ty-edit">
+              Changed your mind?{' '}
+              <a onClick={() => { setView('form'); setEditing(false); }}>RSVP again</a>
+            </p>
           </div>
         )}
 

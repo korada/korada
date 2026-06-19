@@ -507,6 +507,25 @@ $white:         #ffffff;
   }
 }
 
+.bs-remove-btn {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0;
+  background: none;
+  border: none;
+  color: #9E3A3A;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  opacity: 0.65;
+  transition: opacity 0.2s;
+
+  &:hover:not(:disabled) { opacity: 1; }
+  &:disabled { cursor: not-allowed; }
+}
+
 .bs-error {
   background: #FFF0F0;
   border: 1px solid #FFAAAA;

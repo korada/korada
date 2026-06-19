@@ -442,6 +442,26 @@
       transform: translateY(-2px);
     }
 
+    .remove-btn {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0;
+      background: none;
+      border: none;
+      color: #9E3A3A;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .remove-btn:hover { opacity: 1; }
+
+    /* ── Removed state ───────────────────────────────────────────────────── */
+    #removed-banner { display: none; text-align: center; padding: 1rem 0; }
+
     /* ── Thank-you state ─────────────────────────────────────────────────── */
     #thank-you { display: none; text-align: center; padding: 1rem 0; }
 
@@ -598,6 +618,21 @@
       </p>
       <div class="rsvp-summary" id="ab-summary"></div>
       <button type="button" class="edit-btn" id="edit-btn">✏️ Edit my RSVP</button>
+      <br />
+      <button type="button" class="remove-btn" id="remove-btn">Remove my RSVP</button>
+    </div>
+
+    <!-- Removed RSVP state -->
+    <div id="removed-banner">
+      <div class="ab-emoji">💔</div>
+      <h2 class="ab-title">RSVP Removed</h2>
+      <p class="ab-text">
+        We're so sad you won't be joining us.<br />
+        We'll miss you and keep you in our thoughts. 💛
+      </p>
+      <p class="ty-edit">
+        Changed your mind? <a id="rsvp-again-link">RSVP again</a>
+      </p>
     </div>
 
     <form id="rsvp-form" novalidate>
@@ -786,8 +821,36 @@
       setTimeout(function () { c.remove(); }, 5000);
     }
 
+    // ── Remove RSVP ───────────────────────────────────────────────────────
+    function handleRemove() {
+      var saved = getSaved();
+      if (!saved || !saved.email) return;
+      if (!confirm("Are you sure you want to remove your RSVP?\n\nWe'll be so sad to see you go!")) return;
+
+      fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'cancel', email: saved.email, name: saved.name }),
+      })
+        .then(function () {
+          localStorage.removeItem(STORAGE_KEY);
+          banner.style.display = 'none';
+          document.getElementById('removed-banner').style.display = 'block';
+        })
+        .catch(function () {
+          alert('Something went wrong. Please try again.');
+        });
+    }
+
     // ── Wire up edit / cancel buttons ─────────────────────────────────────
     document.getElementById('edit-btn').addEventListener('click', startEdit);
+    document.getElementById('remove-btn').addEventListener('click', handleRemove);
+    document.getElementById('rsvp-again-link').addEventListener('click', function () {
+      document.getElementById('removed-banner').style.display = 'none';
+      form.style.display = 'block';
+      btn.textContent = 'Send RSVP  🌸';
+    });
     document.getElementById('ty-edit-link').addEventListener('click', startEdit);
     document.getElementById('cancel-edit-link').addEventListener('click', function () {
       var saved = getSaved();
