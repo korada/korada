@@ -21,12 +21,12 @@
  *
  *  ── HOW TO CONFIRM THIS VERSION IS LIVE ────────────────────────────────────
  *  Open the /exec URL in a browser. You should see:
- *    { "version": 9, "status": "RSVP endpoint is active" }
+ *    { "version": 10, "status": "RSVP endpoint is active" }
  *  If you see a lower version number, you haven't deployed a new version yet.
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-var SCRIPT_VERSION = 9;
+var SCRIPT_VERSION = 10;
 var SHEET_ID     = '1-Vl-0uW5WhZDwtNg_1l4OveKLCgjKLYbWd4fdCejuvw';
 var SHEET_NAME   = 'RSVPs';
 var NOTIFY_EMAIL = 'korvenadi@gmail.com,sasanapuris@gmail.com';
@@ -47,13 +47,18 @@ var HEADERS = [
 // how the browser reads data back from Apps Script across origins.
 function doGet(e) {
   var p = (e && e.parameter) || {};
+  Logger.log('━━━━━━━━━━ doGet ━━━━━━━━━━');
+  Logger.log('doGet params: ' + JSON.stringify(p));
   try {
     if (p.action === 'cancel' && p.email) {
+      Logger.log('doGet → cancel for ' + p.email);
       return jsonpOrJson(p, handleCancel({ email: p.email, name: p.name || '' }));
     }
     if (p.email) {
+      Logger.log('doGet → lookup for ' + p.email);
       return jsonpOrJson(p, lookupByEmail(p.email));
     }
+    Logger.log('doGet → ping / version check');
     return jsonpOrJson(p, { version: SCRIPT_VERSION, status: 'RSVP endpoint is active' });
   } catch (err) {
     Logger.log('doGet ERROR: ' + err.toString());
@@ -87,97 +92,132 @@ function lookupByEmail(email) {
 
 // ── doPost: receives RSVP submissions from the web page ─────────────────────
 function doPost(e) {
+  Logger.log('━━━━━━━━━━ doPost ━━━━━━━━━━');
   try {
+    // Log everything that arrived so we can see exactly what the page sent.
+    Logger.log('doPost has postData?   ' + !!(e && e.postData));
+    if (e && e.postData) {
+      Logger.log('doPost postData.type:   ' + e.postData.type);
+      Logger.log('doPost postData.length: ' + e.postData.length);
+      Logger.log('doPost postData.contents: ' + e.postData.contents);
+    }
+    Logger.log('doPost e.parameter:     ' + JSON.stringify((e && e.parameter) || {}));
+
     var data = {};
     if (e && e.postData && e.postData.contents) {
-      try { data = JSON.parse(e.postData.contents); } catch (ignore) {}
+      try { data = JSON.parse(e.postData.contents); }
+      catch (ignore) { Logger.log('doPost: body was not JSON — ' + ignore); }
     }
     // Only fall back to form params if the JSON body was empty/unparseable —
     // never overwrite a parsed body (that used to wipe action='cancel').
     if ((!data || !Object.keys(data).length) && e && e.parameter) {
+      Logger.log('doPost: falling back to e.parameter');
       data = e.parameter;
     }
 
-    Logger.log('doPost received: ' + JSON.stringify(data));
-
-    var sheet = getSheet();
-    ensureHeader(sheet);
-
-    var now   = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
-    var name  = (data.name  || '').trim();
-    var email = (data.email || '').trim();
+    Logger.log('doPost parsed data: ' + JSON.stringify(data));
 
     // ── Cancel / remove RSVP ───────────────────────────────────────────────
     if (data.action === 'cancel') {
-      return jsonResponse(handleCancel({ email: email, name: name }));
+      Logger.log('doPost → cancel');
+      return jsonResponse(handleCancel({
+        email: (data.email || '').trim(),
+        name:  (data.name  || '').trim(),
+      }));
     }
 
-    var phone    = data.phone    || '';
-    var adults   = data.adults   || '1';
-    var children = data.children || '0';
-    var message  = data.message  || '';
-
-    // Email is the primary key — find the existing row if any
-    var existingRow = isEmail(email) ? findRowByEmail(sheet, email) : -1;
-    var isUpdate    = existingRow > 0;
-
-    if (isUpdate) {
-      // Overwrite cols 2–8, keep original Timestamp in col 1
-      sheet.getRange(existingRow, 2, 1, 7)
-           .setValues([[name, email, phone, adults, children, message, now]]);
-      Logger.log('Updated row ' + existingRow + ' for ' + email);
-    } else {
-      sheet.appendRow([now, name, email, phone, adults, children, message, now]);
-      Logger.log('Appended new row for ' + email);
-    }
-
-    // (a) Notify the hosts
-    if (NOTIFY_EMAIL) {
-      MailApp.sendEmail(
-        NOTIFY_EMAIL,
-        (isUpdate ? 'Updated RSVP from ' : 'New RSVP from ') + (name || 'guest'),
-        formatOwnerEmail(data, isUpdate)
-      );
-    }
-
-    // (b) Confirmation email to the guest
-    var guestEmailSent = false;
-    var guestEmailError = '';
-    if (isEmail(email)) {
-      try {
-        var subject = isUpdate
-          ? 'Your RSVP has been updated - Sravya & Venkata Aditya Seemantham'
-          : 'Your RSVP is confirmed - Sravya & Venkata Aditya Seemantham';
-        MailApp.sendEmail({
-          to:       email,
-          subject:  subject,
-          body:     guestEmailPlain(data, isUpdate),
-          htmlBody: guestEmailHtml(data, isUpdate),
-          name:     'Sravya & Venkata Aditya',
-        });
-        guestEmailSent = true;
-        Logger.log('Guest email sent to ' + email);
-      } catch (mailErr) {
-        guestEmailError = mailErr.toString();
-        Logger.log('Guest email FAILED: ' + guestEmailError);
-      }
-    } else {
-      guestEmailError = 'invalid or missing email: "' + email + '"';
-      Logger.log('Guest email skipped — ' + guestEmailError);
-    }
-
-    return jsonResponse({
-      success: true,
-      updated: isUpdate,
-      guestEmailSent: guestEmailSent,
-      guestEmailError: guestEmailError,
-      version: SCRIPT_VERSION,
-    });
+    return jsonResponse(processSubmission(data));
 
   } catch (err) {
     Logger.log('doPost ERROR: ' + err.toString());
     return jsonResponse({ success: false, error: err.toString(), version: SCRIPT_VERSION });
   }
+}
+
+// ── Shared submission handler (used by doPost AND the JSONP doGet path) ───────
+// Writes/updates the row and sends the host + guest emails. Returns a plain
+// object describing exactly what happened, so the page can log it.
+function processSubmission(data) {
+  var sheet = getSheet();
+  ensureHeader(sheet);
+  Logger.log('processSubmission writing to tab "' + sheet.getName() +
+             '" in "' + sheet.getParent().getName() + '"');
+
+  var now      = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+  var name     = (data.name  || '').trim();
+  var email    = (data.email || '').trim();
+  var phone    = data.phone    || '';
+  var adults   = data.adults   || '1';
+  var children = data.children || '0';
+  var message  = data.message  || '';
+
+  // Email is the primary key — find the existing row if any
+  var existingRow = isEmail(email) ? findRowByEmail(sheet, email) : -1;
+  var isUpdate    = existingRow > 0;
+
+  if (isUpdate) {
+    // Overwrite cols 2–8, keep original Timestamp in col 1
+    sheet.getRange(existingRow, 2, 1, 7)
+         .setValues([[name, email, phone, adults, children, message, now]]);
+    Logger.log('Updated row ' + existingRow + ' for ' + email);
+  } else {
+    sheet.appendRow([now, name, email, phone, adults, children, message, now]);
+    Logger.log('Appended new row (now ' + sheet.getLastRow() + ' rows) for ' + email);
+  }
+
+  // (a) Notify the hosts
+  var hostEmailSent = false, hostEmailError = '';
+  if (NOTIFY_EMAIL) {
+    try {
+      MailApp.sendEmail(
+        NOTIFY_EMAIL,
+        (isUpdate ? 'Updated RSVP from ' : 'New RSVP from ') + (name || 'guest'),
+        formatOwnerEmail(data, isUpdate)
+      );
+      hostEmailSent = true;
+      Logger.log('Host email sent to ' + NOTIFY_EMAIL);
+    } catch (hostErr) {
+      hostEmailError = hostErr.toString();
+      Logger.log('Host email FAILED: ' + hostEmailError);
+    }
+  }
+
+  // (b) Confirmation email to the guest
+  var guestEmailSent = false, guestEmailError = '';
+  if (isEmail(email)) {
+    try {
+      var subject = isUpdate
+        ? 'Your RSVP has been updated - Sravya & Venkata Aditya Seemantham'
+        : 'Your RSVP is confirmed - Sravya & Venkata Aditya Seemantham';
+      MailApp.sendEmail({
+        to:       email,
+        subject:  subject,
+        body:     guestEmailPlain(data, isUpdate),
+        htmlBody: guestEmailHtml(data, isUpdate),
+        name:     'Sravya & Venkata Aditya',
+      });
+      guestEmailSent = true;
+      Logger.log('Guest email sent to ' + email);
+    } catch (mailErr) {
+      guestEmailError = mailErr.toString();
+      Logger.log('Guest email FAILED: ' + guestEmailError);
+    }
+  } else {
+    guestEmailError = 'invalid or missing email: "' + email + '"';
+    Logger.log('Guest email skipped — ' + guestEmailError);
+  }
+
+  return {
+    success: true,
+    updated: isUpdate,
+    row: isUpdate ? existingRow : sheet.getLastRow(),
+    sheetTab: sheet.getName(),
+    hostEmailSent: hostEmailSent,
+    hostEmailError: hostEmailError,
+    guestEmailSent: guestEmailSent,
+    guestEmailError: guestEmailError,
+    version: SCRIPT_VERSION,
+  };
 }
 
 // ── Shared cancel handler (used by both doPost and the JSONP doGet path) ──────

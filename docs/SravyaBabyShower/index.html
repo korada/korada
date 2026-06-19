@@ -586,6 +586,61 @@
       .gold-bar, .submit-btn, .invite-main-title .flower { animation: none; }
       .ab-emoji, .ty-emoji { animation: none; }
     }
+
+    /* ── Debug panel (only shown when the URL contains ?debug=1 or #debug) ─── */
+    #debug-toggle {
+      display: none;
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      z-index: 9999;
+      background: #1B4332;
+      color: #F5C842;
+      border: 1px solid #D4A017;
+      border-radius: 50px;
+      padding: 0.4rem 0.8rem;
+      font: 600 0.8rem 'Lato', sans-serif;
+      cursor: pointer;
+    }
+    #debug-panel {
+      display: none;
+      position: fixed;
+      bottom: 54px;
+      right: 12px;
+      width: min(92vw, 460px);
+      max-height: 60vh;
+      overflow-y: auto;
+      z-index: 9999;
+      background: #0C1F16;
+      color: #C9F5D6;
+      border: 1px solid #2D6A4F;
+      border-radius: 10px;
+      padding: 0.75rem 0.85rem;
+      font: 400 11.5px/1.5 ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    #debug-panel .dbg-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      color: #F5C842;
+      font-weight: 700;
+    }
+    #debug-panel .dbg-clear {
+      background: none;
+      border: 1px solid #2D6A4F;
+      color: #A8D5B5;
+      border-radius: 6px;
+      padding: 0.15rem 0.5rem;
+      cursor: pointer;
+      font: inherit;
+    }
+    #debug-log .dl { padding: 0.15rem 0; border-bottom: 1px solid #173026; white-space: pre-wrap; word-break: break-word; }
+    #debug-log .dl .t { color: #6B8F71; }
+    #debug-log .dl.ok   { color: #8DEFA8; }
+    #debug-log .dl.err  { color: #FF9C9C; }
+    #debug-log .dl.warn { color: #F5C842; }
   </style>
 </head>
 <body>
@@ -776,10 +831,57 @@
 
   <div class="gold-bar"></div>
 
+  <!-- ── Debug panel (activate with ?debug=1 or #debug in the URL) ────────── -->
+  <button id="debug-toggle" type="button">🐞 Debug</button>
+  <div id="debug-panel">
+    <div class="dbg-head">
+      <span>RSVP debug log</span>
+      <button class="dbg-clear" type="button" id="debug-clear">clear</button>
+    </div>
+    <div id="debug-log"></div>
+  </div>
+
   <!-- ── RSVP Submission Script ──────────────────────────────────────────── -->
   <script>
     var GAS_URL = 'https://script.google.com/macros/s/AKfycbzPuwskCSm1QgWb3VvxXE5ktR75a3AArgbKDPLoh7OpB-BGr6MAUFnyM2wQnwojQS9t/exec';
     var STORAGE_KEY = 'seemantham_rsvp_v1';
+
+    // ── Debug logging ──────────────────────────────────────────────────────
+    // Visible on-page log so you can confirm the submit actually reached GAS.
+    // Turn it on by adding ?debug=1 (or #debug) to the URL. Everything is also
+    // mirrored to the browser console (always, even with debug off).
+    var DEBUG = /(\?|&)debug=1\b/.test(location.search) || /\bdebug\b/.test(location.hash);
+    function dlog(msg, kind, obj) {
+      var line = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+      try { console.log('[RSVP] ' + msg, obj !== undefined ? obj : ''); } catch (e) {}
+      if (!DEBUG) return;
+      var box = document.getElementById('debug-log');
+      if (!box) return;
+      var div = document.createElement('div');
+      div.className = 'dl' + (kind ? ' ' + kind : '');
+      var body = msg;
+      if (obj !== undefined) {
+        try { body += '\n' + JSON.stringify(obj, null, 2); } catch (e) { body += '\n' + obj; }
+      }
+      div.innerHTML = '<span class="t">[' + new Date().toLocaleTimeString() + ']</span> ' +
+        body.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      box.appendChild(div);
+      var panel = document.getElementById('debug-panel');
+      if (panel) panel.scrollTop = panel.scrollHeight;
+    }
+    if (DEBUG) {
+      var dt = document.getElementById('debug-toggle');
+      var dp = document.getElementById('debug-panel');
+      dt.style.display = 'block';
+      dp.style.display = 'block';
+      dt.addEventListener('click', function () {
+        dp.style.display = dp.style.display === 'none' ? 'block' : 'none';
+      });
+      document.getElementById('debug-clear').addEventListener('click', function () {
+        document.getElementById('debug-log').innerHTML = '';
+      });
+      dlog('Debug mode ON. GAS_URL = ' + GAS_URL, 'warn');
+    }
 
     var form      = document.getElementById('rsvp-form');
     var banner    = document.getElementById('already-banner');
@@ -1023,14 +1125,19 @@
       btn.textContent = isUpdate ? 'Updating… 🌸' : 'Sending… 🌸';
       document.getElementById('error-msg').style.display = 'none';
 
+      dlog((isUpdate ? 'UPDATE' : 'NEW') + ' submit — sending to GAS', 'warn', data);
+
       if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-        console.log('RSVP data (GAS not configured):', data);
+        dlog('GAS_URL not configured — saving locally only', 'err');
         saveLocal(data);
         showThankYou(isUpdate);
         return;
       }
 
-      // no-cors: request reaches the server and saves; response is opaque.
+      // no-cors: request reaches the server and saves; response is opaque
+      // (we can't read status or body — that's why we verify separately below).
+      var t0 = Date.now();
+      dlog('POST → ' + GAS_URL + ' (mode: no-cors)');
       fetch(GAS_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -1038,21 +1145,65 @@
         body: JSON.stringify(data),
       })
         .then(function () {
+          dlog('POST fetch resolved in ' + (Date.now() - t0) + 'ms ' +
+               '(opaque response — cannot read body; this only means the ' +
+               'request left the browser, NOT that GAS succeeded)', 'ok');
           saveLocal(data);
           cancelBox.style.display = 'none';
           showThankYou(isUpdate);
+          verifySubmission(data, isUpdate);
         })
-        .catch(function () {
+        .catch(function (err) {
+          dlog('POST fetch FAILED: ' + err, 'err');
           document.getElementById('error-msg').style.display = 'block';
           btn.disabled = false;
           btn.textContent = isUpdate ? 'Update My RSVP  🌸' : 'Send RSVP  🌸';
         });
     });
 
+    // ── Verify the submission actually landed ──────────────────────────────
+    // The no-cors POST is opaque, so we follow up with a JSONP lookup (a real,
+    // readable response) to confirm GAS received the data and wrote the row.
+    function verifySubmission(data, isUpdate) {
+      dlog('Verifying via JSONP lookup for ' + data.email + ' …');
+      jsonp({ email: data.email }, function (res) {
+        if (!res) {
+          dlog('Verify: NO response from GAS (timeout/error). The POST may not ' +
+               'have reached GAS, or the deployment is down / not authorized.', 'err');
+          return;
+        }
+        dlog('Verify: GAS responded (script version ' + (res.version || '?') + ')',
+             'ok', res);
+        if (res.found && res.rsvp) {
+          var match = (res.rsvp.email || '').toLowerCase() === (data.email || '').toLowerCase();
+          dlog('Verify: row FOUND in sheet for ' + res.rsvp.email +
+               (match ? ' — write confirmed ✓' : ''), match ? 'ok' : 'warn', res.rsvp);
+        } else {
+          dlog('Verify: GAS is reachable but NO row found for ' + data.email +
+               '. The write did not land — check the Apps Script execution log ' +
+               '(likely a sheet/tab-name or authorization problem).', 'err');
+        }
+      });
+    }
+
     // ── On load: returning guests see their RSVP ──────────────────────────
     (function init() {
       var saved = getSaved();
       if (saved && saved.name) showBanner(saved);
+
+      // Ping GAS so the debug log shows reachability + deployed version up front.
+      if (DEBUG) {
+        dlog('Pinging GAS to check reachability…');
+        jsonp({ ping: '1' }, function (res) {
+          if (!res) {
+            dlog('Ping FAILED — GAS did not respond. URL wrong, deployment ' +
+                 'down, or not authorized.', 'err');
+          } else {
+            dlog('Ping OK — GAS reachable, deployed version ' + (res.version || '?'),
+                 'ok', res);
+          }
+        });
+      }
     })();
   </script>
 
