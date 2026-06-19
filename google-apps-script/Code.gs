@@ -60,7 +60,7 @@ function doPost(e) {
     ensureHeader(sheet);
 
     var now = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
-    var id  = (data.id || '').toString();
+    var id  = (data.id || Utilities.getUuid()).toString();
 
     var row = [
       data.name     || '',
@@ -71,18 +71,18 @@ function doPost(e) {
       data.message  || '',
     ];
 
-    // Edit support: if this id already has a row, update it; else append.
-    var existingRow = id ? findRowById(sheet, id) : -1;
-    var isUpdate = false;
+    // Use email as the primary key — more reliable than a client-generated UUID.
+    var existingRow = isEmail(data.email) ? findRowByEmail(sheet, data.email) : -1;
+    var isUpdate    = existingRow > 0;
 
     if (existingRow > 0) {
-      isUpdate = true;
       // Keep the original Timestamp (col 1); overwrite cols 2–9.
       sheet.getRange(existingRow, 2, 1, 8)
            .setValues([[row[0], row[1], row[2], row[3], row[4], row[5], id, now]]);
+      Logger.log('Updated existing row ' + existingRow + ' for email: ' + data.email);
     } else {
-      if (!id) id = Utilities.getUuid();
       sheet.appendRow([now, row[0], row[1], row[2], row[3], row[4], row[5], id, now]);
+      Logger.log('Appended new row for email: ' + data.email);
     }
 
     // (a) Notify the hosts
@@ -160,13 +160,15 @@ function ensureHeader(sheet) {
   }
 }
 
-// Returns the 1-based row number whose "RSVP ID" (col 8) matches id, or -1.
-function findRowById(sheet, id) {
+// Returns the 1-based row number whose Email (col 3) matches, or -1.
+function findRowByEmail(sheet, email) {
+  if (!email) return -1;
   var last = sheet.getLastRow();
   if (last < 2) return -1;
-  var ids = sheet.getRange(2, 8, last - 1, 1).getValues();
-  for (var i = 0; i < ids.length; i++) {
-    if (String(ids[i][0]) === id) return i + 2;
+  var emails = sheet.getRange(2, 3, last - 1, 1).getValues();
+  var target = email.trim().toLowerCase();
+  for (var i = 0; i < emails.length; i++) {
+    if (String(emails[i][0]).trim().toLowerCase() === target) return i + 2;
   }
   return -1;
 }
@@ -227,32 +229,21 @@ function formatGuestEmailPlain(data, isUpdate) {
   return lines.join('\n');
 }
 
-// ── Manual test — run this directly in the Apps Script editor to verify ──────
-// 1. Open script.google.com → your project
-// 2. Select "testGuestEmail" from the function dropdown → Run
-// 3. Check Execution Log for success/failure and your inbox
-function testGuestEmail() {
-  var testData = {
-    name:     'Test Guest',
-    email:    'korvenadi@gmail.com',  // sends to yourself for testing
-    phone:    '',
-    adults:   '2',
-    children: '1',
-    message:  'Testing the guest confirmation email!',
-  };
-  var plain = formatGuestEmailPlain(testData, false);
-  var html  = formatGuestEmail(testData, false);
-  Logger.log('Plain text:\n' + plain);
-  Logger.log('HTML length: ' + html.length);
-  MailApp.sendEmail({
-    to:       testData.email,
-    subject:  'TEST — Your RSVP is confirmed - Sravya & Venkata Aditya Seemantham',
-    body:     plain,
-    htmlBody: html,
-    name:     'Sravya & Venkata Aditya',
-    replyTo:  'korvenadi@gmail.com',
-  });
-  Logger.log('Test email sent successfully to ' + testData.email);
+// ── Manual tests — run from the Apps Script editor to verify email delivery ──
+// Select the function name from the dropdown, click Run, check Execution Log.
+function testNewRsvpEmail() {
+  var data = { name: 'Test Guest', email: 'korvenadi@gmail.com', adults: '2', children: '1', message: 'Testing!' };
+  MailApp.sendEmail({ to: data.email, subject: 'TEST — RSVP confirmed',
+    body: formatGuestEmailPlain(data, false), htmlBody: formatGuestEmail(data, false),
+    name: 'Sravya & Venkata Aditya', replyTo: 'korvenadi@gmail.com' });
+  Logger.log('New-RSVP test email sent to ' + data.email);
+}
+function testUpdateRsvpEmail() {
+  var data = { name: 'Test Guest', email: 'korvenadi@gmail.com', adults: '3', children: '0', message: 'Updated!' };
+  MailApp.sendEmail({ to: data.email, subject: 'TEST — RSVP updated',
+    body: formatGuestEmailPlain(data, true), htmlBody: formatGuestEmail(data, true),
+    name: 'Sravya & Venkata Aditya', replyTo: 'korvenadi@gmail.com' });
+  Logger.log('Update-RSVP test email sent to ' + data.email);
 }
 
 function formatGuestEmail(data, isUpdate) {
