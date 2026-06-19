@@ -14,6 +14,27 @@ function getSaved() {
 function saveLocal(data) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
 }
+
+// JSONP — reads data back from Apps Script across origins (no-cors can't).
+function jsonp(params, cb) {
+  const fn = 'jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+  const script = document.createElement('script');
+  let done = false;
+  const cleanup = () => {
+    clearTimeout(timer);
+    delete window[fn];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  };
+  const finish = (res) => { if (done) return; done = true; cleanup(); cb(res); };
+  const timer = setTimeout(() => finish(null), 12000);
+  window[fn] = (res) => finish(res);
+  script.onerror = () => finish(null);
+  let qs = 'callback=' + fn;
+  Object.keys(params).forEach((k) => { qs += '&' + k + '=' + encodeURIComponent(params[k]); });
+  script.src = GAS_URL + '?' + qs;
+  document.body.appendChild(script);
+}
+
 function partyText(d) {
   const a = d.adults || '1';
   let s = `${a} adult${a === '1' ? '' : 's'}`;
@@ -48,6 +69,10 @@ export default function BabyShower() {
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(null);
   const [wasUpdate, setWasUpdate] = useState(false);
+  const [lookupOpen, setLookupOpen] = useState(false);
+  const [lookupStatus, setLookupStatus] = useState(null); // { kind, msg }
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const lookupRef = useRef(null);
   const formRef = useRef(null);
 
   // On mount: returning guests see their saved RSVP
@@ -83,20 +108,40 @@ export default function BabyShower() {
   function handleRemove() {
     if (!window.confirm("Are you sure you want to remove your RSVP?\n\nWe'll be so sad to see you go!")) return;
     const current = getSaved();
+    if (!current || !current.email) return;
     setStatus('submitting');
-    fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'cancel', email: current.email, name: current.name }),
-    })
-      .then(() => {
+    // JSONP so we can confirm the row was actually deleted server-side.
+    jsonp({ action: 'cancel', email: current.email, name: current.name || '' }, (res) => {
+      if (res && res.success && (res.cancelled || res.found === false)) {
         localStorage.removeItem(STORAGE_KEY);
         setSaved(null);
         setStatus('idle');
         setView('removed');
-      })
-      .catch(() => setStatus('error'));
+      } else {
+        setStatus('idle');
+        window.alert('Something went wrong removing your RSVP. Please try again.');
+      }
+    });
+  }
+
+  function handleLookup() {
+    const email = (lookupRef.current && lookupRef.current.value.trim()) || '';
+    if (!email) { setLookupStatus({ kind: 'error', msg: 'Please enter your email.' }); return; }
+    setLookupBusy(true);
+    setLookupStatus({ kind: '', msg: 'Looking up your RSVP…' });
+    jsonp({ email }, (res) => {
+      setLookupBusy(false);
+      if (res && res.success && res.found && res.rsvp) {
+        setLookupStatus({ kind: 'ok', msg: 'Found it! 🎉' });
+        saveLocal(res.rsvp);
+        setSaved(res.rsvp);
+        setView('banner');
+      } else if (res && res.success && res.found === false) {
+        setLookupStatus({ kind: 'error', msg: "We couldn't find an RSVP for that email. Please check the spelling, or submit a new one below." });
+      } else {
+        setLookupStatus({ kind: 'error', msg: 'Something went wrong. Please try again in a moment.' });
+      }
+    });
   }
 
   function handleSubmit(e) {
@@ -232,19 +277,6 @@ export default function BabyShower() {
           </div>
         )}
 
-        {view === 'removed' && (
-          <div className="bs-thankyou">
-            <div className="bs-ty-emoji">💔</div>
-            <h3 className="bs-ty-title">RSVP Removed</h3>
-            <p className="bs-ty-text">
-              We're so sad you won't be joining us. 💛
-            </p>
-            <p className="bs-ty-edit">
-              Changed your mind?{' '}
-              <a onClick={() => { setView('form'); setEditing(false); }}>RSVP again</a>
-            </p>
-          </div>
-        )}
 
         {view === 'thanks' && (
           <div className="bs-thankyou">
@@ -259,6 +291,43 @@ export default function BabyShower() {
             <p className="bs-ty-edit">
               A confirmation has been sent to your email. Need to make a change?{' '}
               <a onClick={startEdit}>Edit my RSVP</a>
+            </p>
+          </div>
+        )}
+
+        {view === 'form' && !editing && (
+          <div className="bs-lookup">
+            <p className="bs-lookup-prompt">
+              Already RSVP'd on another device?{' '}
+              <a onClick={() => setLookupOpen(o => !o)}>Find your RSVP →</a>
+            </p>
+            {lookupOpen && (
+              <div className="bs-lookup-fields">
+                <input
+                  ref={lookupRef}
+                  type="email"
+                  placeholder="Enter the email you used"
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleLookup(); } }}
+                />
+                <button type="button" className="bs-lookup-btn" onClick={handleLookup} disabled={lookupBusy}>
+                  {lookupBusy ? 'Searching…' : 'Find my RSVP'}
+                </button>
+                {lookupStatus && (
+                  <p className={`bs-lookup-status ${lookupStatus.kind}`}>{lookupStatus.msg}</p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {view === 'removed' && (
+          <div className="bs-thankyou">
+            <div className="bs-ty-emoji">💔</div>
+            <h3 className="bs-ty-title">RSVP Removed</h3>
+            <p className="bs-ty-text">We're so sad you won't be joining us. 💛</p>
+            <p className="bs-ty-edit">
+              Changed your mind?{' '}
+              <a onClick={() => { setView('form'); setEditing(false); setLookupOpen(false); setLookupStatus(null); }}>RSVP again</a>
             </p>
           </div>
         )}

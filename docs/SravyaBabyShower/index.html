@@ -459,6 +459,46 @@
     }
     .remove-btn:hover { opacity: 1; }
 
+    /* ── Email lookup box ────────────────────────────────────────────────── */
+    #lookup-box { text-align: center; margin: 0 0 1.5rem; }
+    .lookup-prompt { font-size: 0.85rem; color: #6B8F71; }
+    .lookup-prompt a { color: #C8860A; font-weight: 600; cursor: pointer; text-decoration: underline; }
+    #lookup-fields { display: none; margin-top: 0.85rem; }
+    #lookup-fields input {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid #C8D8BC;
+      border-radius: 10px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.95rem;
+      color: #1B4332;
+      background: #FDFCF5;
+      margin-bottom: 0.6rem;
+    }
+    #lookup-fields input:focus {
+      outline: none;
+      border-color: #D4A017;
+      box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.15);
+    }
+    .lookup-btn {
+      display: inline-block;
+      padding: 0.6rem 1.4rem;
+      background: #fff;
+      color: #C8860A;
+      border: 2px solid #D4A017;
+      border-radius: 50px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .lookup-btn:hover:not(:disabled) { background: #D4A017; color: #fff; }
+    .lookup-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    #lookup-status { font-size: 0.82rem; margin-top: 0.6rem; min-height: 1.1rem; }
+    #lookup-status.error { color: #9E3A3A; }
+    #lookup-status.ok { color: #2D6A4F; }
+
     /* ── Removed state ───────────────────────────────────────────────────── */
     #removed-banner { display: none; text-align: center; padding: 1rem 0; }
 
@@ -608,6 +648,19 @@
     <h2 class="rsvp-title">Kindly RSVP</h2>
     <p class="rsvp-subtitle">Please respond by August 1st, 2026 · We'd love to celebrate with you! 💛</p>
 
+    <!-- Look up an existing RSVP by email (when this device has no saved copy) -->
+    <div id="lookup-box">
+      <p class="lookup-prompt">
+        Already RSVP'd on another device?
+        <a id="lookup-toggle">Find your RSVP →</a>
+      </p>
+      <div id="lookup-fields">
+        <input id="lookup-email" type="email" placeholder="Enter the email you used" />
+        <button type="button" class="lookup-btn" id="lookup-btn">Find my RSVP</button>
+        <p id="lookup-status"></p>
+      </div>
+    </div>
+
     <!-- Already-RSVP'd banner (shown on return visits) -->
     <div id="already-banner">
       <div class="ab-emoji">🎉</div>
@@ -733,6 +786,7 @@
     var thankYou  = document.getElementById('thank-you');
     var btn       = document.getElementById('submit-btn');
     var cancelBox = document.getElementById('cancel-edit');
+    var lookupBox = document.getElementById('lookup-box');
 
     // ── localStorage helpers ──────────────────────────────────────────────
     function getSaved() {
@@ -752,9 +806,10 @@
       var first = saved.name ? ' ' + saved.name.split(' ')[0] : '';
       document.getElementById('ab-name').textContent = first;
       document.getElementById('ab-summary').innerHTML = summaryHtml(saved);
-      banner.style.display   = 'block';
-      form.style.display     = 'none';
-      thankYou.style.display = 'none';
+      banner.style.display    = 'block';
+      form.style.display      = 'none';
+      thankYou.style.display  = 'none';
+      lookupBox.style.display = 'none';
     }
     function summaryHtml(d) {
       var party = (d.adults || '1') + ' adult' + ((d.adults || '1') === '1' ? '' : 's');
@@ -781,16 +836,18 @@
     function startEdit() {
       var saved = getSaved();
       if (saved) prefill(saved);
-      banner.style.display   = 'none';
-      thankYou.style.display = 'none';
-      form.style.display     = 'block';
-      btn.textContent        = 'Update My RSVP  🌸';
+      banner.style.display    = 'none';
+      thankYou.style.display  = 'none';
+      lookupBox.style.display = 'none';
+      form.style.display      = 'block';
+      btn.textContent         = 'Update My RSVP  🌸';
       cancelBox.style.display = 'block';
       document.getElementById('rsvp').scrollIntoView({ behavior: 'smooth' });
     }
     function showThankYou(isUpdate) {
-      form.style.display   = 'none';
-      banner.style.display = 'none';
+      form.style.display      = 'none';
+      banner.style.display    = 'none';
+      lookupBox.style.display = 'none';
       document.getElementById('ty-title').textContent = isUpdate ? 'All updated!' : 'Thank you!';
       document.getElementById('ty-text').innerHTML = isUpdate
         ? "Your RSVP has been updated.<br />We can't wait to celebrate with you! 💛"
@@ -820,34 +877,116 @@
       setTimeout(function () { c.remove(); }, 5000);
     }
 
-    // ── Remove RSVP ───────────────────────────────────────────────────────
+    // ── JSONP helper (reads data back from Apps Script across origins) ──────
+    function jsonp(params, cb) {
+      var fn = 'jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+      var script = document.createElement('script');
+      var done = false;
+      var timer = setTimeout(function () {
+        if (done) return;
+        done = true;
+        cleanup();
+        cb(null);
+      }, 12000);
+      function cleanup() {
+        clearTimeout(timer);
+        delete window[fn];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+      window[fn] = function (res) {
+        if (done) return;
+        done = true;
+        cleanup();
+        cb(res);
+      };
+      var qs = 'callback=' + fn;
+      for (var k in params) {
+        if (params.hasOwnProperty(k)) qs += '&' + k + '=' + encodeURIComponent(params[k]);
+      }
+      script.src = GAS_URL + '?' + qs;
+      script.onerror = function () {
+        if (done) return;
+        done = true;
+        cleanup();
+        cb(null);
+      };
+      document.body.appendChild(script);
+    }
+
+    // ── Remove RSVP (JSONP so we can confirm the row was actually deleted) ──
     function handleRemove() {
       var saved = getSaved();
       if (!saved || !saved.email) return;
       if (!confirm("Are you sure you want to remove your RSVP?\n\nWe'll be so sad to see you go!")) return;
 
-      fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'cancel', email: saved.email, name: saved.name }),
-      })
-        .then(function () {
+      var removeBtn = document.getElementById('remove-btn');
+      removeBtn.disabled = true;
+      removeBtn.textContent = 'Removing…';
+
+      jsonp({ action: 'cancel', email: saved.email, name: saved.name || '' }, function (res) {
+        removeBtn.disabled = false;
+        removeBtn.textContent = 'Remove my RSVP';
+        if (res && res.success && res.cancelled) {
           localStorage.removeItem(STORAGE_KEY);
           banner.style.display = 'none';
           document.getElementById('removed-banner').style.display = 'block';
-        })
-        .catch(function () {
-          alert('Something went wrong. Please try again.');
-        });
+        } else if (res && res.found === false) {
+          // Already gone from the sheet — clear locally and show removed state
+          localStorage.removeItem(STORAGE_KEY);
+          banner.style.display = 'none';
+          document.getElementById('removed-banner').style.display = 'block';
+        } else {
+          alert('Something went wrong removing your RSVP. Please try again.');
+        }
+      });
+    }
+
+    // ── Look up an existing RSVP by email ──────────────────────────────────
+    function setLookupStatus(msg, kind) {
+      var el = document.getElementById('lookup-status');
+      el.textContent = msg || '';
+      el.className = kind || '';
+    }
+    function handleLookup() {
+      var email = document.getElementById('lookup-email').value.trim();
+      if (!email) { setLookupStatus('Please enter your email.', 'error'); return; }
+
+      var lbtn = document.getElementById('lookup-btn');
+      lbtn.disabled = true;
+      lbtn.textContent = 'Searching…';
+      setLookupStatus('Looking up your RSVP…', '');
+
+      jsonp({ email: email }, function (res) {
+        lbtn.disabled = false;
+        lbtn.textContent = 'Find my RSVP';
+        if (res && res.success && res.found && res.rsvp) {
+          setLookupStatus('Found it! 🎉', 'ok');
+          saveLocal(res.rsvp);
+          showBanner(res.rsvp);
+        } else if (res && res.success && res.found === false) {
+          setLookupStatus("We couldn't find an RSVP for that email. Please check the spelling, or submit a new one below.", 'error');
+        } else {
+          setLookupStatus('Something went wrong. Please try again in a moment.', 'error');
+        }
+      });
     }
 
     // ── Wire up edit / cancel buttons ─────────────────────────────────────
     document.getElementById('edit-btn').addEventListener('click', startEdit);
     document.getElementById('remove-btn').addEventListener('click', handleRemove);
+    document.getElementById('lookup-toggle').addEventListener('click', function () {
+      var f = document.getElementById('lookup-fields');
+      f.style.display = f.style.display === 'block' ? 'none' : 'block';
+      if (f.style.display === 'block') document.getElementById('lookup-email').focus();
+    });
+    document.getElementById('lookup-btn').addEventListener('click', handleLookup);
+    document.getElementById('lookup-email').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); handleLookup(); }
+    });
     document.getElementById('rsvp-again-link').addEventListener('click', function () {
       document.getElementById('removed-banner').style.display = 'none';
       form.style.display = 'block';
+      lookupBox.style.display = 'block';
       btn.textContent = 'Send RSVP  🌸';
     });
     document.getElementById('ty-edit-link').addEventListener('click', startEdit);

@@ -537,6 +537,67 @@ $white:         #ffffff;
   text-align: center;
 }
 
+// ── Email lookup ──────────────────────────────────────────────────────────────
+.bs-lookup {
+  text-align: center;
+  margin: 0 0 1.5rem;
+}
+.bs-lookup-prompt {
+  font-size: 0.85rem;
+  color: $green-light;
+
+  a {
+    color: #C8860A;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+}
+.bs-lookup-fields {
+  margin-top: 0.85rem;
+
+  input {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border: 1.5px solid #C8D8BC;
+    border-radius: 10px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95rem;
+    color: $green-dark;
+    background: #FDFCF5;
+    margin-bottom: 0.6rem;
+
+    &:focus {
+      outline: none;
+      border-color: $gold;
+      box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.15);
+    }
+  }
+}
+.bs-lookup-btn {
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  background: $white;
+  color: #C8860A;
+  border: 2px solid $gold;
+  border-radius: 50px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover:not(:disabled) { background: $gold; color: $white; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+.bs-lookup-status {
+  font-size: 0.82rem;
+  margin-top: 0.6rem;
+
+  &.error { color: #9E3A3A; }
+  &.ok { color: $green-mid; }
+}
+
 // ── Thank-you state ───────────────────────────────────────────────────────────
 .bs-thankyou {
   text-align: center;

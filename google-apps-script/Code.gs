@@ -1,6 +1,6 @@
 /**
  * Sravya's Seemantham RSVP — Google Apps Script Backend
- * VERSION 8 — email is the primary key; styled HTML guest emails
+ * VERSION 9 — email is the primary key; styled HTML guest emails
  *             (new / update / cancel) each with a plain-text fallback.
  *
  * ── SETUP ───────────────────────────────────────────────────────────────────
@@ -21,12 +21,12 @@
  *
  *  ── HOW TO CONFIRM THIS VERSION IS LIVE ────────────────────────────────────
  *  Open the /exec URL in a browser. You should see:
- *    { "version": 8, "status": "RSVP endpoint is active" }
+ *    { "version": 9, "status": "RSVP endpoint is active" }
  *  If you see a lower version number, you haven't deployed a new version yet.
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-var SCRIPT_VERSION = 8;
+var SCRIPT_VERSION = 9;
 var SHEET_ID     = '1-Vl-0uW5WhZDwtNg_1l4OveKLCgjKLYbWd4fdCejuvw';
 var SHEET_NAME   = 'RSVPs';
 var NOTIFY_EMAIL = 'korvenadi@gmail.com,sasanapuris@gmail.com';
@@ -38,9 +38,51 @@ var HEADERS = [
   'Adults', 'Children', 'Wishes', 'Last Updated',
 ];
 
-// ── doGet: open /exec in browser to verify the deployed version ─────────────
+// ── doGet ────────────────────────────────────────────────────────────────────
+// Plain browser visit  → version/status JSON (to confirm the deployed version).
+// ?email=...           → look up an existing RSVP (returned as JSON or JSONP).
+// ?action=cancel&email → remove an RSVP (used by the site so it can read the
+//                        real success/error, which a no-cors POST cannot).
+// JSONP: add &callback=fn to any of the above to get fn({...}) back. This is
+// how the browser reads data back from Apps Script across origins.
 function doGet(e) {
-  return jsonResponse({ version: SCRIPT_VERSION, status: 'RSVP endpoint is active' });
+  var p = (e && e.parameter) || {};
+  try {
+    if (p.action === 'cancel' && p.email) {
+      return jsonpOrJson(p, handleCancel({ email: p.email, name: p.name || '' }));
+    }
+    if (p.email) {
+      return jsonpOrJson(p, lookupByEmail(p.email));
+    }
+    return jsonpOrJson(p, { version: SCRIPT_VERSION, status: 'RSVP endpoint is active' });
+  } catch (err) {
+    Logger.log('doGet ERROR: ' + err.toString());
+    return jsonpOrJson(p, { success: false, error: err.toString(), version: SCRIPT_VERSION });
+  }
+}
+
+// Returns the saved RSVP for an email so the guest can edit/remove it on a
+// device that has no localStorage copy.
+function lookupByEmail(email) {
+  var sheet = getSheet();
+  ensureHeader(sheet);
+  var row = isEmail(email) ? findRowByEmail(sheet, email) : -1;
+  if (row < 0) return { success: true, found: false, version: SCRIPT_VERSION };
+  var v = sheet.getRange(row, 1, 1, 8).getValues()[0];
+  // [Timestamp, Name, Email, Phone, Adults, Children, Wishes, Last Updated]
+  return {
+    success: true,
+    found: true,
+    rsvp: {
+      name:     String(v[1] || ''),
+      email:    String(v[2] || ''),
+      phone:    String(v[3] || ''),
+      adults:   String(v[4] || '1'),
+      children: String(v[5] || '0'),
+      message:  String(v[6] || ''),
+    },
+    version: SCRIPT_VERSION,
+  };
 }
 
 // ── doPost: receives RSVP submissions from the web page ─────────────────────
@@ -67,50 +109,7 @@ function doPost(e) {
 
     // ── Cancel / remove RSVP ───────────────────────────────────────────────
     if (data.action === 'cancel') {
-      var cancelRow = isEmail(email) ? findRowByEmail(sheet, email) : -1;
-      if (cancelRow < 0) {
-        return jsonResponse({ success: false, error: 'No RSVP found for that email.', version: SCRIPT_VERSION });
-      }
-      sheet.deleteRow(cancelRow);
-      Logger.log('Deleted row ' + cancelRow + ' for ' + email);
-
-      if (NOTIFY_EMAIL) {
-        MailApp.sendEmail(
-          NOTIFY_EMAIL,
-          (name || email) + ' has removed their RSVP - Seemantham',
-          (name || 'A guest') + ' has REMOVED their RSVP for Sravya\'s Seemantham.\n\n' +
-          'Name:  ' + (name || '-') + '\n' +
-          'Email: ' + (email || '-') + '\n\n' +
-          'Their row has been deleted from the sheet.\n\n' +
-          'Time: ' + now
-        );
-        Logger.log('Host cancel notification sent to ' + NOTIFY_EMAIL);
-      }
-      var cancelEmailSent = false;
-      var cancelEmailError = '';
-      if (isEmail(email)) {
-        try {
-          MailApp.sendEmail({
-            to:       email,
-            subject:  "We're sad to see you go - Sravya & Venkata Aditya Seemantham",
-            body:     cancelEmailPlain(name),
-            htmlBody: cancelEmailHtml(name),
-            name:     'Sravya & Venkata Aditya',
-          });
-          cancelEmailSent = true;
-          Logger.log('Cancel confirmation sent to ' + email);
-        } catch (mailErr) {
-          cancelEmailError = mailErr.toString();
-          Logger.log('Cancel email FAILED: ' + cancelEmailError);
-        }
-      }
-      return jsonResponse({
-        success: true,
-        cancelled: true,
-        guestEmailSent: cancelEmailSent,
-        guestEmailError: cancelEmailError,
-        version: SCRIPT_VERSION,
-      });
+      return jsonResponse(handleCancel({ email: email, name: name }));
     }
 
     var phone    = data.phone    || '';
@@ -179,6 +178,84 @@ function doPost(e) {
     Logger.log('doPost ERROR: ' + err.toString());
     return jsonResponse({ success: false, error: err.toString(), version: SCRIPT_VERSION });
   }
+}
+
+// ── Shared cancel handler (used by both doPost and the JSONP doGet path) ──────
+function handleCancel(data) {
+  var email = (data.email || '').trim();
+  var name  = (data.name  || '').trim();
+  var now   = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
+
+  var sheet = getSheet();
+  ensureHeader(sheet);
+
+  var cancelRow = isEmail(email) ? findRowByEmail(sheet, email) : -1;
+  if (cancelRow < 0) {
+    Logger.log('Cancel: no row found for ' + email);
+    return { success: false, found: false, error: 'No RSVP found for that email.', version: SCRIPT_VERSION };
+  }
+
+  sheet.deleteRow(cancelRow);
+  Logger.log('Cancel: deleted row ' + cancelRow + ' for ' + email);
+
+  // Notify the hosts that the guest removed their RSVP
+  if (NOTIFY_EMAIL) {
+    try {
+      MailApp.sendEmail(
+        NOTIFY_EMAIL,
+        (name || email) + ' has removed their RSVP - Seemantham',
+        (name || 'A guest') + ' has REMOVED their RSVP for Sravya\'s Seemantham.\n\n' +
+        'Name:  ' + (name || '-') + '\n' +
+        'Email: ' + (email || '-') + '\n\n' +
+        'Their row has been deleted from the sheet.\n\n' +
+        'Time: ' + now
+      );
+      Logger.log('Host cancel notification sent to ' + NOTIFY_EMAIL);
+    } catch (hostErr) {
+      Logger.log('Host cancel email failed: ' + hostErr.toString());
+    }
+  }
+
+  // Confirm to the guest
+  var guestEmailSent = false, guestEmailError = '';
+  if (isEmail(email)) {
+    try {
+      MailApp.sendEmail({
+        to:       email,
+        subject:  "We're sad to see you go - Sravya & Venkata Aditya Seemantham",
+        body:     cancelEmailPlain(name),
+        htmlBody: cancelEmailHtml(name),
+        name:     'Sravya & Venkata Aditya',
+      });
+      guestEmailSent = true;
+      Logger.log('Cancel confirmation sent to ' + email);
+    } catch (mailErr) {
+      guestEmailError = mailErr.toString();
+      Logger.log('Cancel email FAILED: ' + guestEmailError);
+    }
+  }
+
+  return {
+    success: true,
+    cancelled: true,
+    deletedRow: cancelRow,
+    guestEmailSent: guestEmailSent,
+    guestEmailError: guestEmailError,
+    version: SCRIPT_VERSION,
+  };
+}
+
+// Returns JSONP (fn({...})) when a callback param is present, else plain JSON.
+function jsonpOrJson(params, obj) {
+  var json = JSON.stringify(obj);
+  if (params && params.callback) {
+    return ContentService
+      .createTextOutput(params.callback + '(' + json + ')')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService
+    .createTextOutput(json)
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
