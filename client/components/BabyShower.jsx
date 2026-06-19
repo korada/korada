@@ -145,7 +145,9 @@ export default function BabyShower() {
       <header className="bs-header bs-animate-in">
         <div className="bs-marigold">🌼 · 🌸 · 🌼 · 🌸 · 🌼 · 🌸 · 🌼</div>
         <p className="bs-sub">Join us in celebrating</p>
-        <h1 className="bs-title">Seemantham <span className="bs-flower">🌸</span></h1>
+        <h1 className="bs-title">
+          <span className="bs-flower" style={{ animationDelay: '1.2s' }}>🌸</span> Seemantham <span className="bs-flower">🌸</span>
+        </h1>
         <p className="bs-and">✦ &nbsp; and Gender Reveal &nbsp; ✦</p>
       </header>
 
