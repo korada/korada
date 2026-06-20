@@ -56,6 +56,16 @@ module.exports = {
       template: 'client/babyshower.html',
       filename: 'SravyaBabyShower/index.html',
       chunks: ['babyshower']
+    }),
+    // 404 page (GitHub Pages serves it for unmatched paths). Contains a small
+    // script that makes known routes case-insensitive by redirecting wrong-case
+    // URLs (e.g. /sravyababyshower) to their canonical path. inject:false so no
+    // JS bundle is added — it's a standalone redirect page.
+    new HtmlWebpackPlugin({
+      template: 'client/404.html',
+      filename: '404.html',
+      inject: false,
+      chunks: []
     })
   ]
 };
