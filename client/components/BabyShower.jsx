@@ -119,8 +119,9 @@ export default function BabyShower() {
   const [saved, setSaved] = useState(null);
   const [wasUpdate, setWasUpdate] = useState(false);
   const [lookupOpen, setLookupOpen] = useState(false);
-  const [lookupStatus, setLookupStatus] = useState(null); // { kind, msg }
+  const [lookupStatus, setLookupStatus] = useState(null);
   const [lookupBusy, setLookupBusy] = useState(false);
+  const [errors, setErrors] = useState({});
   const lookupRef = useRef(null);
   const formRef = useRef(null);
 
@@ -186,7 +187,8 @@ export default function BabyShower() {
 
   function handleLookup() {
     const email = (lookupRef.current && lookupRef.current.value.trim()) || '';
-    if (!email) { setLookupStatus({ kind: 'error', msg: 'Please enter your email.' }); return; }
+    if (!email) { setLookupStatus({ kind: 'error', msg: 'Please enter your email address.' }); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { setLookupStatus({ kind: 'error', msg: 'Please enter a valid email address (e.g. you@example.com).' }); return; }
     setLookupBusy(true);
     setLookupStatus({ kind: '', msg: 'Looking up your RSVP…' });
     jsonp({ email }, (res) => {
@@ -204,12 +206,29 @@ export default function BabyShower() {
     });
   }
 
+  function validate(name, email, phone) {
+    const errs = {};
+    if (!name) errs.name = 'Please enter your full name.';
+    if (!email) {
+      errs.email = 'Please enter your email address.';
+    } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      errs.email = 'Please enter a valid email address (e.g. you@example.com).';
+    }
+    if (phone && !/^[\d\s().+\-]{7,15}$/.test(phone)) {
+      errs.phone = 'Please enter a valid phone number.';
+    }
+    return errs;
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     const form = e.target;
     const name = form.name.value.trim();
     const email = form.email.value.trim();
-    if (!name || !email) { alert('Please fill in your name and email.'); return; }
+    const phone = form.phone.value.trim();
+    const errs = validate(name, email, phone);
+    if (Object.keys(errs).length) { setErrors(errs); return; }
+    setErrors({});
 
     const prior = getSaved();
     const isUpdate = !!(prior && prior.email);
@@ -406,19 +425,34 @@ export default function BabyShower() {
           <form ref={formRef} onSubmit={handleSubmit} noValidate>
             <div className="bs-form-group">
               <label htmlFor="bs-name">Full Name <span className="bs-req">*</span></label>
-              <input id="bs-name" type="text" name="name" placeholder="Your full name" required />
+              <input
+                id="bs-name" type="text" name="name" placeholder="Your full name" required
+                className={errors.name ? 'bs-input-error' : ''}
+                onChange={() => errors.name && setErrors(e => ({ ...e, name: '' }))}
+              />
+              {errors.name && <p className="bs-field-error">{errors.name}</p>}
             </div>
 
             <div className="bs-form-group">
               <label htmlFor="bs-email">Email Address <span className="bs-req">*</span></label>
-              <input id="bs-email" type="email" name="email" placeholder="you@example.com" required />
+              <input
+                id="bs-email" type="email" name="email" placeholder="you@example.com" required
+                className={errors.email ? 'bs-input-error' : ''}
+                onChange={() => errors.email && setErrors(e => ({ ...e, email: '' }))}
+              />
+              {errors.email && <p className="bs-field-error">{errors.email}</p>}
             </div>
 
             <div className="bs-form-group">
               <label htmlFor="bs-phone">
                 Phone Number <span className="bs-opt">(optional)</span>
               </label>
-              <input id="bs-phone" type="tel" name="phone" placeholder="(704) 555-0000" />
+              <input
+                id="bs-phone" type="tel" name="phone" placeholder="(704) 555-0000"
+                className={errors.phone ? 'bs-input-error' : ''}
+                onChange={() => errors.phone && setErrors(e => ({ ...e, phone: '' }))}
+              />
+              {errors.phone && <p className="bs-field-error">{errors.phone}</p>}
             </div>
 
             <div className="bs-form-row">
