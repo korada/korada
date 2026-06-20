@@ -1,6 +1,6 @@
 /**
  * Sravya's Seemantham RSVP — Google Apps Script Backend
- * VERSION 12 — email is the primary key; styled HTML guest emails
+ * VERSION 13 — email is the primary key; styled HTML guest emails
  *             (new / update / cancel) each with a plain-text fallback.
  *
  * ── SETUP ───────────────────────────────────────────────────────────────────
@@ -21,21 +21,21 @@
  *
  *  ── HOW TO CONFIRM THIS VERSION IS LIVE ────────────────────────────────────
  *  Open the /exec URL in a browser. You should see:
- *    { "version": 12, "status": "RSVP endpoint is active" }
+ *    { "version": 13, "status": "RSVP endpoint is active" }
  *  If you see a lower version number, you haven't deployed a new version yet.
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-var SCRIPT_VERSION = 12;
+var SCRIPT_VERSION = 13;
 var SHEET_ID     = '1-Vl-0uW5WhZDwtNg_1l4OveKLCgjKLYbWd4fdCejuvw';
 var SHEET_NAME   = 'RSVPs';
 var NOTIFY_EMAIL = 'korvenadi@gmail.com,sasanapuris@gmail.com';
 var RSVP_PAGE    = 'https://korada.in/SravyaBabyShower';
 
-// 8 columns — email is the identifier, no separate RSVP ID column
+// 9 columns — email is the identifier; Dietary added between Wishes and Last Updated
 var HEADERS = [
   'Timestamp', 'Name', 'Email', 'Phone',
-  'Adults', 'Children', 'Wishes', 'Last Updated',
+  'Adults', 'Children', 'Wishes', 'Dietary', 'Last Updated',
 ];
 
 // ── doGet ────────────────────────────────────────────────────────────────────
@@ -73,8 +73,8 @@ function lookupByEmail(email) {
   ensureHeader(sheet);
   var row = isEmail(email) ? findRowByEmail(sheet, email) : -1;
   if (row < 0) return { success: true, found: false, version: SCRIPT_VERSION };
-  var v = sheet.getRange(row, 1, 1, 8).getValues()[0];
-  // [Timestamp, Name, Email, Phone, Adults, Children, Wishes, Last Updated]
+  var v = sheet.getRange(row, 1, 1, 9).getValues()[0];
+  // [Timestamp, Name, Email, Phone, Adults, Children, Wishes, Dietary, Last Updated]
   return {
     success: true,
     found: true,
@@ -85,6 +85,7 @@ function lookupByEmail(email) {
       adults:   String(v[4] || '1'),
       children: String(v[5] || '0'),
       message:  String(v[6] || ''),
+      dietary:  String(v[7] || ''),
     },
     version: SCRIPT_VERSION,
   };
@@ -145,6 +146,7 @@ function processSubmission(data) {
   var adults   = data.adults   || '1';
   var children = data.children || '0';
   var message  = data.message  || '';
+  var dietary  = data.dietary  || '';
 
   // ── Sheet write (isolated so a write failure returns a precise error and
   //    never gets masked by a later email problem). Serialized with a lock so
@@ -165,12 +167,12 @@ function processSubmission(data) {
     // Email is the primary key — find the existing row if any
     var existingRow = isEmail(email) ? findRowByEmail(sheet, email) : -1;
     isUpdate = existingRow > 0;
-    var rowValues = [now, name, email, phone, adults, children, message, now];
+    var rowValues = [now, name, email, phone, adults, children, message, dietary, now];
 
     if (isUpdate) {
-      // Overwrite cols 2–8, keep the original Timestamp in col 1
-      sheet.getRange(existingRow, 2, 1, 7)
-           .setValues([[name, email, phone, adults, children, message, now]]);
+      // Overwrite cols 2–9, keep the original Timestamp in col 1
+      sheet.getRange(existingRow, 2, 1, 8)
+           .setValues([[name, email, phone, adults, children, message, dietary, now]]);
       writtenRow = existingRow;
       Logger.log('Updated row ' + existingRow + ' for ' + email);
     } else {
@@ -339,8 +341,8 @@ function getSheet() {
 }
 
 function ensureHeader(sheet) {
-  // Re-writes headers if column 8 is not 'Last Updated' (handles schema migration)
-  if (sheet.getRange(1, 8).getValue() !== 'Last Updated') {
+  // Re-writes headers if column 9 is not 'Last Updated' (handles schema migration)
+  if (sheet.getRange(1, 9).getValue() !== 'Last Updated') {
     var hdr = sheet.getRange(1, 1, 1, HEADERS.length);
     hdr.setValues([HEADERS]);
     hdr.setFontWeight('bold');
@@ -377,6 +379,7 @@ function formatOwnerEmail(data, isUpdate) {
     'Adults:   ' + (data.adults   || '1'),
     'Children: ' + (data.children || '0'),
     'Wishes:   ' + (data.message  || '-'),
+    'Dietary:  ' + (data.dietary  || 'None'),
     '',
     'Time: ' + new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
   ].join('\n');
@@ -500,6 +503,7 @@ function guestEmailHtml(data, isUpdate) {
     '<table style="width:100%;border-collapse:collapse;margin:14px 0">' +
       summaryRow('Name', data.name || firstName) +
       summaryRow('Attending', partyText(data)) +
+      (data.dietary ? summaryRow('Dietary', data.dietary) : '') +
       (data.message ? summaryRow('Your wishes', data.message) : '') +
     '</table>' +
     eventDetailsCard() +

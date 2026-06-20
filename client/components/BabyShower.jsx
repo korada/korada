@@ -122,13 +122,33 @@ export default function BabyShower() {
   const [lookupStatus, setLookupStatus] = useState(null);
   const [lookupBusy, setLookupBusy] = useState(false);
   const [errors, setErrors] = useState({});
+  const [verifying, setVerifying] = useState(false);
   const lookupRef = useRef(null);
   const formRef = useRef(null);
 
-  // On mount: returning guests see their saved RSVP; ping GAS in debug mode.
+  // On mount: if localStorage has an RSVP, verify it still exists in GAS.
+  // If GAS confirms → show banner with fresh data.
+  // If GAS says not found → clear localStorage, show form.
+  // If GAS is unreachable (timeout/error) → trust localStorage optimistically.
   useEffect(() => {
     const s = getSaved();
-    if (s && s.name) { setSaved(s); setView('banner'); }
+    if (s && s.email) {
+      setVerifying(true);
+      jsonp({ email: s.email }, (res) => {
+        setVerifying(false);
+        if (res && res.success && res.found === false) {
+          localStorage.removeItem(STORAGE_KEY);
+        } else if (res && res.success && res.found && res.rsvp) {
+          saveLocal(res.rsvp);
+          setSaved(res.rsvp);
+          setView('banner');
+        } else {
+          // GAS unreachable — trust localStorage
+          setSaved(s);
+          setView('banner');
+        }
+      });
+    }
     if (DEBUG) {
       dlog('Debug mode ON. GAS_URL = ' + GAS_URL, 'warn');
       dlog('Pinging GAS to check reachability…');
@@ -151,6 +171,7 @@ export default function BabyShower() {
     f.adults.value = d.adults || '1';
     f.children.value = d.children || '0';
     f.message.value = d.message || '';
+    f.dietary.value = d.dietary || '';
   }
 
   function startEdit() {
@@ -236,6 +257,7 @@ export default function BabyShower() {
       adults: form.adults.value,
       children: form.children.value,
       message: form.message.value.trim(),
+      dietary: form.dietary.value.trim(),
     };
 
     setStatus('submitting');
@@ -337,7 +359,14 @@ export default function BabyShower() {
           Please respond by August 1st, 2026 · We'd love to celebrate with you! 💛
         </p>
 
-        {view === 'banner' && saved && (
+        {verifying && (
+          <div className="bs-verifying">
+            <div className="bs-verifying-spinner" />
+            <p>Checking your RSVP…</p>
+          </div>
+        )}
+
+        {!verifying && view === 'banner' && saved && (
           <div className="bs-already">
             <div className="bs-ab-emoji">🎉</div>
             <h2 className="bs-ab-title">You're on the list!</h2>
@@ -349,6 +378,9 @@ export default function BabyShower() {
               <div className="bs-sum-row"><span>Name</span><strong>{saved.name}</strong></div>
               <div className="bs-sum-row"><span>Email</span><strong>{saved.email}</strong></div>
               <div className="bs-sum-row"><span>Attending</span><strong>{partyText(saved)}</strong></div>
+              {saved.dietary && (
+                <div className="bs-sum-row"><span>Dietary</span><strong>{saved.dietary}</strong></div>
+              )}
               {saved.message && (
                 <div className="bs-sum-row"><span>Wishes</span><strong>{saved.message}</strong></div>
               )}
@@ -366,13 +398,16 @@ export default function BabyShower() {
 
         {view === 'thanks' && (
           <div className="bs-thankyou">
-            <div className="bs-ty-emoji">🌸💛🌼</div>
-            <h3 className="bs-ty-title">{wasUpdate ? 'All updated!' : 'Thank you!'}</h3>
+            <div className="bs-ty-emoji">{wasUpdate ? '💛🌸💛' : '🎉🌸🎉'}</div>
+            <h3 className="bs-ty-title">
+              {wasUpdate ? 'Thanks for keeping us updated!' : 'We\'re so excited you can make it!'}
+            </h3>
             <p className="bs-ty-text">
               {wasUpdate
-                ? <>Your RSVP has been updated.<br />We can't wait to celebrate with you! 💛</>
-                : <>Sravya &amp; Venkata Aditya are so grateful for your love and blessings.<br />
-                    We can't wait to celebrate this special milestone with you!</>}
+                ? <>We've noted your changes and have everything updated.<br />
+                    Can't wait to celebrate with you on August 16th! 💛</>
+                : <>Your RSVP is confirmed and we are absolutely thrilled you'll be joining us!<br />
+                    We can't wait to celebrate this beautiful milestone together. 🌸</>}
             </p>
             <p className="bs-ty-edit">
               A confirmation has been sent to your email. Need to make a change?{' '}
@@ -381,7 +416,7 @@ export default function BabyShower() {
           </div>
         )}
 
-        {view === 'form' && !editing && (
+        {!verifying && view === 'form' && !editing && (
           <div className="bs-lookup">
             <p className="bs-lookup-prompt">
               Already RSVP'd on another device?{' '}
@@ -409,8 +444,11 @@ export default function BabyShower() {
         {view === 'removed' && (
           <div className="bs-thankyou">
             <div className="bs-ty-emoji">💔</div>
-            <h3 className="bs-ty-title">RSVP Removed</h3>
-            <p className="bs-ty-text">We're so sad you won't be joining us. 💛</p>
+            <h3 className="bs-ty-title">We'll Miss You!</h3>
+            <p className="bs-ty-text">
+              We're so sad you won't be able to make it. 💛<br />
+              We'll be thinking of you and hope your plans change!
+            </p>
             <p className="bs-ty-edit">
               Changed your mind?{' '}
               <a onClick={() => { setView('form'); setEditing(false); setLookupOpen(false); setLookupStatus(null); }}>RSVP again</a>
@@ -418,7 +456,7 @@ export default function BabyShower() {
           </div>
         )}
 
-        {view === 'form' && (
+        {!verifying && view === 'form' && (
           <form ref={formRef} onSubmit={handleSubmit} noValidate>
             <div className="bs-form-group">
               <label htmlFor="bs-name">Full Name <span className="bs-req">*</span></label>
@@ -465,6 +503,18 @@ export default function BabyShower() {
                   {['0','1','2','3','4+'].map(n => <option key={n} value={n}>{n}</option>)}
                 </select>
               </div>
+            </div>
+
+            <div className="bs-form-group">
+              <label htmlFor="bs-dietary">
+                Dietary Requirements <span className="bs-opt">(optional)</span>
+              </label>
+              <input
+                id="bs-dietary"
+                type="text"
+                name="dietary"
+                placeholder="e.g. Vegetarian, Vegan, Gluten-free, Nut allergy…"
+              />
             </div>
 
             <div className="bs-form-group">
