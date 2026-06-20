@@ -329,6 +329,7 @@ $white:         #ffffff;
   select,
   textarea {
     width: 100%;
+    box-sizing: border-box;
     padding: 0.65rem 0.9rem;
     border: 1.5px solid #C8D8BC;
     border-radius: 10px;
@@ -558,6 +559,7 @@ $white:         #ffffff;
 
   input {
     width: 100%;
+    box-sizing: border-box;
     padding: 0.65rem 0.9rem;
     border: 1.5px solid #C8D8BC;
     border-radius: 10px;
