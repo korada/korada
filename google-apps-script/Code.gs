@@ -1,6 +1,6 @@
 /**
  * Sravya's Seemantham RSVP — Google Apps Script Backend
- * VERSION 11 — email is the primary key; styled HTML guest emails
+ * VERSION 12 — email is the primary key; styled HTML guest emails
  *             (new / update / cancel) each with a plain-text fallback.
  *
  * ── SETUP ───────────────────────────────────────────────────────────────────
@@ -21,12 +21,12 @@
  *
  *  ── HOW TO CONFIRM THIS VERSION IS LIVE ────────────────────────────────────
  *  Open the /exec URL in a browser. You should see:
- *    { "version": 11, "status": "RSVP endpoint is active" }
+ *    { "version": 12, "status": "RSVP endpoint is active" }
  *  If you see a lower version number, you haven't deployed a new version yet.
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-var SCRIPT_VERSION = 11;
+var SCRIPT_VERSION = 12;
 var SHEET_ID     = '1-Vl-0uW5WhZDwtNg_1l4OveKLCgjKLYbWd4fdCejuvw';
 var SHEET_NAME   = 'RSVPs';
 var NOTIFY_EMAIL = 'korvenadi@gmail.com,sasanapuris@gmail.com';
@@ -138,11 +138,6 @@ function doPost(e) {
 // Writes/updates the row and sends the host + guest emails. Returns a plain
 // object describing exactly what happened, so the page can log it.
 function processSubmission(data) {
-  var sheet = getSheet();
-  ensureHeader(sheet);
-  Logger.log('processSubmission writing to tab "' + sheet.getName() +
-             '" in "' + sheet.getParent().getName() + '"');
-
   var now      = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
   var name     = (data.name  || '').trim();
   var email    = (data.email || '').trim();
@@ -151,18 +146,52 @@ function processSubmission(data) {
   var children = data.children || '0';
   var message  = data.message  || '';
 
-  // Email is the primary key — find the existing row if any
-  var existingRow = isEmail(email) ? findRowByEmail(sheet, email) : -1;
-  var isUpdate    = existingRow > 0;
+  // ── Sheet write (isolated so a write failure returns a precise error and
+  //    never gets masked by a later email problem). Serialized with a lock so
+  //    two simultaneous RSVPs can't append to the same row. ──────────────────
+  var isUpdate = false;
+  var writtenRow = -1;
+  var sheetTab = '';
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(20000);
 
-  if (isUpdate) {
-    // Overwrite cols 2–8, keep original Timestamp in col 1
-    sheet.getRange(existingRow, 2, 1, 7)
-         .setValues([[name, email, phone, adults, children, message, now]]);
-    Logger.log('Updated row ' + existingRow + ' for ' + email);
-  } else {
-    sheet.appendRow([now, name, email, phone, adults, children, message, now]);
-    Logger.log('Appended new row (now ' + sheet.getLastRow() + ' rows) for ' + email);
+    var sheet = getSheet();
+    ensureHeader(sheet);
+    sheetTab = sheet.getName();
+    Logger.log('processSubmission writing to tab "' + sheetTab +
+               '" in "' + sheet.getParent().getName() + '"');
+
+    // Email is the primary key — find the existing row if any
+    var existingRow = isEmail(email) ? findRowByEmail(sheet, email) : -1;
+    isUpdate = existingRow > 0;
+    var rowValues = [now, name, email, phone, adults, children, message, now];
+
+    if (isUpdate) {
+      // Overwrite cols 2–8, keep the original Timestamp in col 1
+      sheet.getRange(existingRow, 2, 1, 7)
+           .setValues([[name, email, phone, adults, children, message, now]]);
+      writtenRow = existingRow;
+      Logger.log('Updated row ' + existingRow + ' for ' + email);
+    } else {
+      // Explicit write at the next row — more predictable than appendRow(),
+      // which can throw on sheets with filters / protected ranges.
+      var newRow = sheet.getLastRow() + 1;
+      sheet.getRange(newRow, 1, 1, rowValues.length).setValues([rowValues]);
+      writtenRow = newRow;
+      Logger.log('Wrote new row ' + newRow + ' (now ' + sheet.getLastRow() + ' rows) for ' + email);
+    }
+    SpreadsheetApp.flush();
+  } catch (writeErr) {
+    Logger.log('SHEET WRITE FAILED: ' + writeErr);
+    return {
+      success: false,
+      stage: 'sheet-write',
+      error: writeErr.toString(),
+      version: SCRIPT_VERSION,
+    };
+  } finally {
+    try { lock.releaseLock(); } catch (ignore) {}
   }
 
   // (a) Notify the hosts
@@ -210,8 +239,8 @@ function processSubmission(data) {
   return {
     success: true,
     updated: isUpdate,
-    row: isUpdate ? existingRow : sheet.getLastRow(),
-    sheetTab: sheet.getName(),
+    row: writtenRow,
+    sheetTab: sheetTab,
     hostEmailSent: hostEmailSent,
     hostEmailError: hostEmailError,
     guestEmailSent: guestEmailSent,
@@ -598,4 +627,20 @@ function testFullSubmission() {
   };
   var out = doPost(fakeEvent);
   Logger.log('doPost returned: ' + out.getContent());
+}
+
+// Isolates the NEW-RSVP (append) path with a brand-new email each run.
+// If the sheet write is what's failing, the returned object will be
+// { success:false, stage:'sheet-write', error:'<the exact reason>' }.
+function testNewRsvpWrite() {
+  var data = {
+    name: 'Brand New Guest',
+    email: 'new+' + Date.now() + '@example.com',
+    phone: '704-555-0199',
+    adults: '6+',
+    children: '4+',
+    message: 'Testing the new-row append path',
+  };
+  var res = processSubmission(data);
+  Logger.log('testNewRsvpWrite result: ' + JSON.stringify(res));
 }
