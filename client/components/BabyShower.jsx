@@ -509,10 +509,12 @@ export default function BabyShower() {
               <label>Dietary Preference <span className="bs-opt">(optional)</span></label>
               <div className="bs-radio-group">
                 <label className="bs-radio-label">
-                  <input type="radio" name="dietary" value="Vegetarian" /> 🥗 Vegetarian
+                  <input type="radio" name="dietary" value="Vegetarian" />
+                  <span>🥗 Vegetarian</span>
                 </label>
                 <label className="bs-radio-label">
-                  <input type="radio" name="dietary" value="Non-Vegetarian" /> 🍗 Non-Vegetarian
+                  <input type="radio" name="dietary" value="Non-Vegetarian" />
+                  <span>🍗 Non-Vegetarian</span>
                 </label>
               </div>
             </div>

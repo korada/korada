@@ -412,6 +412,7 @@ $white:         #ffffff;
   gap: 0.5rem;
   cursor: pointer;
   font-size: 0.95rem;
+  line-height: 1;
   color: $green-dark;
   font-weight: 500;
   text-transform: none;
@@ -434,11 +435,17 @@ $white:         #ffffff;
   input[type='radio'] {
     appearance: auto;
     -webkit-appearance: auto;
+    flex: 0 0 auto;
     width: 17px;
     height: 17px;
     margin: 0;
     accent-color: #2D6A4F;
     cursor: pointer;
+  }
+
+  span {
+    display: inline-flex;
+    align-items: center;
   }
 }
 
