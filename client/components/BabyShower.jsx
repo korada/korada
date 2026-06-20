@@ -506,15 +506,15 @@ export default function BabyShower() {
             </div>
 
             <div className="bs-form-group">
-              <label htmlFor="bs-dietary">
-                Dietary Requirements <span className="bs-opt">(optional)</span>
-              </label>
-              <input
-                id="bs-dietary"
-                type="text"
-                name="dietary"
-                placeholder="e.g. Vegetarian, Vegan, Gluten-free, Nut allergy…"
-              />
+              <label>Dietary Preference <span className="bs-opt">(optional)</span></label>
+              <div className="bs-radio-group">
+                <label className="bs-radio-label">
+                  <input type="radio" name="dietary" value="Vegetarian" /> 🥗 Vegetarian
+                </label>
+                <label className="bs-radio-label">
+                  <input type="radio" name="dietary" value="Non-Vegetarian" /> 🍗 Non-Vegetarian
+                </label>
+              </div>
             </div>
 
             <div className="bs-form-group">
