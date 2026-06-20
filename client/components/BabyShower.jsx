@@ -171,17 +171,14 @@ export default function BabyShower() {
     const current = getSaved();
     if (!current || !current.email) return;
     setStatus('submitting');
-    // JSONP so we can confirm the row was actually deleted server-side.
     jsonp({ action: 'cancel', email: current.email, name: current.name || '' }, (res) => {
-      if (res && res.success && (res.cancelled || res.found === false)) {
-        localStorage.removeItem(STORAGE_KEY);
-        setSaved(null);
-        setStatus('idle');
-        setView('removed');
-      } else {
-        setStatus('idle');
-        window.alert('Something went wrong removing your RSVP. Please try again.');
+      if (!res || !res.success) {
+        dlog('Remove RSVP error (clearing locally anyway): ' + JSON.stringify(res), 'err');
       }
+      localStorage.removeItem(STORAGE_KEY);
+      setSaved(null);
+      setStatus('idle');
+      setView('removed');
     });
   }
 
