@@ -7,6 +7,55 @@ const STORAGE_KEY = 'seemantham_rsvp_v1';
 
 const PETALS = ['🌸', '🌼', '🌸', '🌷', '🌼', '🌸', '🌼', '🌷', '🌸', '🌼'];
 
+// ── Debug logging ────────────────────────────────────────────────────────────
+// Turn on a visible on-page log (to confirm the submit actually reached GAS) by
+// adding ?debug=1 (or #debug) to the URL. Everything is also mirrored to the
+// browser console regardless. The no-cors POST is opaque, so this is how you can
+// tell whether GAS truly received the data — see verifySubmission().
+const DEBUG = typeof location !== 'undefined' &&
+  (/(\?|&)debug=1\b/.test(location.search) || /\bdebug\b/.test(location.hash));
+
+function dlog(msg, kind, obj) {
+  try { console.log('[RSVP] ' + msg, obj !== undefined ? obj : ''); } catch (e) {}
+  if (!DEBUG) return;
+  const box = document.getElementById('bs-debug-log');
+  if (!box) return;
+  const div = document.createElement('div');
+  div.className = 'bs-dl' + (kind ? ' ' + kind : '');
+  let body = msg;
+  if (obj !== undefined) {
+    try { body += '\n' + JSON.stringify(obj, null, 2); } catch (e) { body += '\n' + obj; }
+  }
+  div.innerHTML = '<span class="t">[' + new Date().toLocaleTimeString() + ']</span> ' +
+    body.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  box.appendChild(div);
+  const panel = document.getElementById('bs-debug-panel');
+  if (panel) panel.scrollTop = panel.scrollHeight;
+}
+
+// The no-cors POST is opaque, so we follow up with a JSONP lookup (a real,
+// readable response) to confirm GAS received the data and wrote the row.
+function verifySubmission(data) {
+  dlog('Verifying via JSONP lookup for ' + data.email + ' …');
+  jsonp({ email: data.email }, (res) => {
+    if (!res) {
+      dlog('Verify: NO response from GAS (timeout/error). The POST may not have ' +
+           'reached GAS, or the deployment is down / not authorized.', 'err');
+      return;
+    }
+    dlog('Verify: GAS responded (script version ' + (res.version || '?') + ')', 'ok', res);
+    if (res.found && res.rsvp) {
+      const match = (res.rsvp.email || '').toLowerCase() === (data.email || '').toLowerCase();
+      dlog('Verify: row FOUND in sheet for ' + res.rsvp.email +
+           (match ? ' — write confirmed ✓' : ''), match ? 'ok' : 'warn', res.rsvp);
+    } else {
+      dlog('Verify: GAS is reachable but NO row found for ' + data.email +
+           '. The write did not land — check the Apps Script execution log ' +
+           '(likely a sheet/tab-name or authorization problem).', 'err');
+    }
+  });
+}
+
 function getSaved() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); }
   catch (e) { return null; }
@@ -75,10 +124,21 @@ export default function BabyShower() {
   const lookupRef = useRef(null);
   const formRef = useRef(null);
 
-  // On mount: returning guests see their saved RSVP
+  // On mount: returning guests see their saved RSVP; ping GAS in debug mode.
   useEffect(() => {
     const s = getSaved();
     if (s && s.name) { setSaved(s); setView('banner'); }
+    if (DEBUG) {
+      dlog('Debug mode ON. GAS_URL = ' + GAS_URL, 'warn');
+      dlog('Pinging GAS to check reachability…');
+      jsonp({ ping: '1' }, (res) => {
+        if (!res) {
+          dlog('Ping FAILED — GAS did not respond. URL wrong, deployment down, or not authorized.', 'err');
+        } else {
+          dlog('Ping OK — GAS reachable, deployed version ' + (res.version || '?'), 'ok', res);
+        }
+      });
+    }
   }, []);
 
   function prefill(d) {
@@ -163,6 +223,7 @@ export default function BabyShower() {
     };
 
     setStatus('submitting');
+    dlog((isUpdate ? 'UPDATE' : 'NEW') + ' submit — sending to GAS', 'warn', data);
 
     const finish = () => {
       saveLocal(data);
@@ -172,22 +233,31 @@ export default function BabyShower() {
       setStatus('idle');
       setView('thanks');
       burstConfetti();
+      verifySubmission(data);
     };
 
     if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-      console.log('RSVP (GAS not configured):', data);
+      dlog('GAS_URL not configured — saving locally only', 'err');
       finish();
       return;
     }
 
+    const t0 = Date.now();
+    dlog('POST → ' + GAS_URL + ' (mode: no-cors)');
     fetch(GAS_URL, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(data),
     })
-      .then(finish)
-      .catch(() => setStatus('error'));
+      .then(() => {
+        dlog('POST resolved in ' + (Date.now() - t0) + 'ms (opaque — cannot read body)', 'ok');
+        finish();
+      })
+      .catch((err) => {
+        dlog('POST fetch FAILED: ' + err, 'err');
+        setStatus('error');
+      });
   }
 
   return (
@@ -406,6 +476,36 @@ export default function BabyShower() {
       </footer>
 
       <div className="bs-gold-bar" />
+
+      {/* ── Debug panel (activate with ?debug=1 or #debug in the URL) ─── */}
+      {DEBUG && (
+        <>
+          <button
+            id="bs-debug-toggle"
+            className="bs-debug-toggle"
+            type="button"
+            onClick={() => {
+              const p = document.getElementById('bs-debug-panel');
+              if (p) p.style.display = p.style.display === 'none' ? 'block' : 'none';
+            }}
+          >
+            🐞 Debug
+          </button>
+          <div id="bs-debug-panel" className="bs-debug-panel">
+            <div className="bs-debug-head">
+              <span>RSVP debug log</span>
+              <button
+                type="button"
+                className="bs-debug-clear"
+                onClick={() => { const b = document.getElementById('bs-debug-log'); if (b) b.innerHTML = ''; }}
+              >
+                clear
+              </button>
+            </div>
+            <div id="bs-debug-log" />
+          </div>
+        </>
+      )}
     </div>
   );
 }

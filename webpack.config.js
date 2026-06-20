@@ -3,7 +3,12 @@ const path = require('path');
 
 module.exports = {
   mode: 'development',
-  entry: './client/index.jsx',
+  entry: {
+    // Main resume/portfolio SPA → docs/index.html
+    main: './client/index.jsx',
+    // Seemantham RSVP page → docs/SravyaBabyShower/index.html
+    babyshower: './client/babyshower.jsx'
+  },
   devtool: 'eval-source-map',
   devServer: {
     historyApiFallback: true,
@@ -38,9 +43,19 @@ module.exports = {
     ]
   },
   plugins: [
+    // Main SPA: client/index.html + main bundle → index.html
     new HtmlWebpackPlugin({
       template: 'client/index.html',
-      filename: 'index.html'
+      filename: 'index.html',
+      chunks: ['main']
+    }),
+    // RSVP page: rendered from <BabyShower /> → SravyaBabyShower/index.html
+    // Adding another standalone page is now just: add an entry above + a
+    // matching HtmlWebpackPlugin here. No hand-written HTML to maintain.
+    new HtmlWebpackPlugin({
+      template: 'client/babyshower.html',
+      filename: 'SravyaBabyShower/index.html',
+      chunks: ['babyshower']
     })
   ]
 };

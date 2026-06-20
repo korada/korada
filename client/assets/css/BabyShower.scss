@@ -661,3 +661,63 @@ $white:         #ffffff;
   .bs-gold-bar, .bs-submit-btn, .bs-flower,
   .bs-ab-emoji, .bs-ty-emoji { animation: none; }
 }
+
+// ── Debug panel (only rendered when ?debug=1 or #debug is in the URL) ─────────
+.bs-debug-toggle {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  z-index: 9999;
+  background: $green-dark;
+  color: #F5C842;
+  border: 1px solid $gold;
+  border-radius: 50px;
+  padding: 0.4rem 0.8rem;
+  font: 600 0.8rem 'Lato', sans-serif;
+  cursor: pointer;
+}
+.bs-debug-panel {
+  position: fixed;
+  bottom: 54px;
+  right: 12px;
+  width: min(92vw, 460px);
+  max-height: 60vh;
+  overflow-y: auto;
+  z-index: 9999;
+  background: #0C1F16;
+  color: #C9F5D6;
+  border: 1px solid $green-mid;
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  font: 400 11.5px/1.5 ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.bs-debug-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: #F5C842;
+  font-weight: 700;
+}
+.bs-debug-clear {
+  background: none;
+  border: 1px solid $green-mid;
+  color: #A8D5B5;
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+  font: inherit;
+}
+#bs-debug-log {
+  .bs-dl {
+    padding: 0.15rem 0;
+    border-bottom: 1px solid #173026;
+    white-space: pre-wrap;
+    word-break: break-word;
+    .t { color: #6B8F71; }
+    &.ok   { color: #8DEFA8; }
+    &.err  { color: #FF9C9C; }
+    &.warn { color: #F5C842; }
+  }
+}
