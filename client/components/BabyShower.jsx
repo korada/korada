@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import inviteImg from '../assets/images/seemantham-invite.jpg';
 import '../assets/css/BabyShower.scss';
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbw-dAHoFVDDEXdCbRWLSN3FuAIKzCsDh1XVBykBTE2lnOpbFfLyinKmJ9zSDaKSX8Tn/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyIwvKJY1RFiYWtlFGRuyLMCpVqO9GNIuVNohMQEWGDDyeLxJx5JdqVzapHbh0F-iRp/exec';
 const STORAGE_KEY = 'seemantham_rsvp_v1';
 
 const PETALS = ['🌸', '🌼', '🌸', '🌷', '🌼', '🌸', '🌼', '🌷', '🌸', '🌼'];
