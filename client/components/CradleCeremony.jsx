@@ -11,7 +11,7 @@ const STORAGE_KEY = 'anagha_cradle_rsvp_v1';
 const EVENT = {
   date: 'Sunday, November 22, 2026',
   time: '11:30 AM',
-  venueName: 'Our residence',
+  venueName: 'at our residence',
   venueAddress: '9021 Drivers Way Apt 1301, Charlotte, NC 28262',
   dressCode: '',
   rsvpBy: '',
@@ -431,8 +431,8 @@ export default function CradleCeremony() {
         <div className="cc-zari" />
         <div className="cc-event-body">
           <p className="cc-event-te">We would love for you to celebrate with us</p>
-          <p className="cc-date">{EVENT.date || 'Date to be announced'}</p>
-          {EVENT.date && EVENT.time && <p className="cc-time">{EVENT.time}</p>}
+          <p className="cc-date">{EVENT.date ? `on ${EVENT.date}` : 'Date to be announced'}</p>
+          {EVENT.date && EVENT.time && <p className="cc-time">at {EVENT.time}</p>}
           {EVENT.venueName && <p className="cc-venue-name">{EVENT.venueName}</p>}
           {EVENT.venueAddress && <p className="cc-venue-addr">{EVENT.venueAddress}</p>}
           {mapsUrl && (
