@@ -2,17 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../assets/css/CradleCeremony.scss';
 
 // Paste the /exec URL of the deployed google-apps-script/CradleCode.gs web app here.
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzaejuhaPMuh-hwQNMHA4-zb2E-FrB5i7AN4p6rUUdMvpeQ391wzqB-4ubDovnMbtmD/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbysOgu-cpcx856oOCqT4RkEGdZ4RSFk_9md-EVvPpWj3W7JE7y4JFX-xJ5kHtWF_K-h/exec';
 const GAS_CONFIGURED = GAS_URL.indexOf('https://') === 0;
 const STORAGE_KEY = 'anagha_cradle_rsvp_v1';
 
-// Event details. Leave a field empty to hide it; an empty date shows "to be announced".
+// Event details. Leave a field empty to hide it; an empty date shows "Date to be announced".
 // Keep these in sync with the EVENT_* constants in google-apps-script/CradleCode.gs.
 const EVENT = {
-  date: '',
-  time: '',
-  venueName: '',
-  venueAddress: '',
+  date: 'Sunday, November 22, 2026',
+  time: '11:30 AM',
+  venueName: 'Our residence',
+  venueAddress: '9021 Drivers Way Apt 1301, Charlotte, NC 28262',
   dressCode: '',
   rsvpBy: '',
 };
@@ -420,38 +420,29 @@ export default function CradleCeremony() {
       <Toran />
 
       <header className="cc-header">
-        <p className="cc-invocation" lang="te">శ్రీరస్తు &nbsp; శుభమస్తు &nbsp; అవిఘ్నమస్తు</p>
         <h1 className="cc-title" lang="te">బారసాల</h1>
-        <p className="cc-subtitle">The Barasala of</p>
+        <p className="cc-subtitle">Cradle Ceremony</p>
         <p className="cc-name">Anagha Saraswika</p>
-        <p className="cc-name-te" lang="te">అనఘ సరస్విక</p>
       </header>
 
       <div className="cc-art-wrap">
         <CradleArt />
-        <p className="cc-lullaby" lang="te">జో అచ్యుతానంద జో జో ముకుందా</p>
       </div>
 
       <section className="cc-event" aria-label="Event details">
         <div className="cc-zari" />
         <div className="cc-event-body">
-          <p className="cc-event-te" lang="te">ఆహ్వానం</p>
-          {EVENT.date ? (
-            <>
-              <p className="cc-date">{EVENT.date}</p>
-              {EVENT.time && <p className="cc-time">{EVENT.time}</p>}
-              {EVENT.venueName && <p className="cc-venue-name">{EVENT.venueName}</p>}
-              {EVENT.venueAddress && <p className="cc-venue-addr">{EVENT.venueAddress}</p>}
-              {mapsUrl && (
-                <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="cc-maps-link">
-                  Open in Maps
-                </a>
-              )}
-              {EVENT.dressCode && <p className="cc-dress">Dress code: {EVENT.dressCode}</p>}
-            </>
-          ) : (
-            <p className="cc-date">Date and venue to be announced</p>
+          <p className="cc-event-te">You are invited</p>
+          <p className="cc-date">{EVENT.date || 'Date to be announced'}</p>
+          {EVENT.date && EVENT.time && <p className="cc-time">{EVENT.time}</p>}
+          {EVENT.venueName && <p className="cc-venue-name">{EVENT.venueName}</p>}
+          {EVENT.venueAddress && <p className="cc-venue-addr">{EVENT.venueAddress}</p>}
+          {mapsUrl && (
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="cc-maps-link">
+              Open in Maps
+            </a>
           )}
+          {EVENT.dressCode && <p className="cc-dress">Dress code: {EVENT.dressCode}</p>}
           <p className="cc-event-line">
             Join us as we name our little one, lay the baby in the cradle for the first time, and ask for your blessings.
           </p>
@@ -506,11 +497,10 @@ export default function CradleCeremony() {
 
         {view === 'thanks' && (
           <div className="cc-thankyou">
-            <p className="cc-thanks-te" lang="te">ధన్యవాదాలు</p>
             <h3 className="cc-state-title">{wasUpdate ? 'Your RSVP is updated' : 'Your RSVP is in'}</h3>
             <p className="cc-state-text">
               {wasUpdate
-                ? 'We have your changes. See you at the Barasala.'
+                ? 'We have your changes. See you at the cradle ceremony.'
                 : 'Thank you. We are so happy you will be there to bless Anagha Saraswika.'}
             </p>
             <p className="cc-state-foot">
@@ -652,7 +642,7 @@ export default function CradleCeremony() {
       </section>
 
       <footer className="cc-footer">
-        <p className="cc-footer-te" lang="te">మీ రాక మాకు ఆనందం</p>
+        <p className="cc-footer-te">Your presence is our joy</p>
         <p className="cc-footer-hosts">{HOSTS}</p>
       </footer>
       <div className="cc-zari" />

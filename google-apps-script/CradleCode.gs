@@ -1,5 +1,5 @@
 /**
- * Anagha Saraswika's Barasala RSVP — Google Apps Script backend
+ * Anagha Saraswika's Cradle Ceremony (Barasala) RSVP — Google Apps Script backend
  * (same design as Code.gs for the Seemantham page: email is the primary key,
  *  hosts get a notification, the guest gets a styled confirmation).
  *
@@ -20,20 +20,20 @@
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-var SCRIPT_VERSION = 1;
+var SCRIPT_VERSION = 3;
 var SHEET_ID     = '';   // empty = the spreadsheet this script is attached to
 var SHEET_NAME   = 'RSVPs';
 var NOTIFY_EMAIL = 'korvenadi@gmail.com,sasanapuris@gmail.com';
 var RSVP_PAGE    = 'https://korada.in/AnaghaBarasala';
 var HOSTS        = 'Sravya & Venkata Aditya';
-var EVENT_NAME   = "Anagha Saraswika's Barasala";
+var EVENT_NAME   = "Anagha Saraswika's Cradle Ceremony";
 
 // Event details shown in guest emails. Leave empty until they are final.
 // Keep in sync with EVENT in client/components/CradleCeremony.jsx.
-var EVENT_DATE    = '';
-var EVENT_TIME    = '';
-var EVENT_VENUE   = '';
-var EVENT_ADDRESS = '';
+var EVENT_DATE    = 'Sunday, November 22, 2026';
+var EVENT_TIME    = '11:30 AM';
+var EVENT_VENUE   = 'Our residence';
+var EVENT_ADDRESS = '9021 Drivers Way Apt 1301, Charlotte, NC 28262';
 var EVENT_DRESS   = '';
 
 var HEADERS = [
@@ -150,7 +150,7 @@ function processSubmission(data) {
     try {
       MailApp.sendEmail(
         NOTIFY_EMAIL,
-        (isUpdate ? 'Updated RSVP from ' : 'New RSVP from ') + (name || 'guest') + ' - Barasala',
+        (isUpdate ? 'Updated RSVP from ' : 'New RSVP from ') + (name || 'guest') + ' - Cradle Ceremony',
         formatOwnerEmail(data, isUpdate)
       );
     } catch (hostErr) {
@@ -199,7 +199,7 @@ function handleCancel(data) {
     try {
       MailApp.sendEmail(
         NOTIFY_EMAIL,
-        (name || email) + ' has removed their RSVP - Barasala',
+        (name || email) + ' has removed their RSVP - Cradle Ceremony',
         (name || 'A guest') + ' has REMOVED their RSVP for ' + EVENT_NAME + '.\n\n' +
         'Name:  ' + (name || '-') + '\n' +
         'Email: ' + email + '\n\n' +
