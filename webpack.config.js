@@ -7,7 +7,9 @@ module.exports = {
     // Main resume/portfolio SPA → docs/index.html
     main: './client/index.jsx',
     // Seemantham RSVP page → docs/SravyaBabyShower/index.html
-    babyshower: './client/babyshower.jsx'
+    babyshower: './client/babyshower.jsx',
+    // Barasala RSVP page → docs/AnaghaBarasala/index.html
+    cradle: './client/cradle.jsx'
   },
   devtool: 'eval-source-map',
   devServer: {
@@ -56,6 +58,11 @@ module.exports = {
       template: 'client/babyshower.html',
       filename: 'SravyaBabyShower/index.html',
       chunks: ['babyshower']
+    }),
+    new HtmlWebpackPlugin({
+      template: 'client/cradle.html',
+      filename: 'AnaghaBarasala/index.html',
+      chunks: ['cradle']
     }),
     // 404 page (GitHub Pages serves it for unmatched paths). Contains a small
     // script that makes known routes case-insensitive by redirecting wrong-case

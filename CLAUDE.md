@@ -38,6 +38,15 @@ Two things ship from this repo:
    edit the React component and rebuild. The invite image lives at
    `client/assets/images/seemantham-invite.jpg` and is bundled by webpack.
 
+3. **Barasala RSVP page** (Anagha Saraswika) — `client/components/CradleCeremony.jsx`
+   (+ `CradleCeremony.scss`), entry `client/cradle.jsx`, built into
+   `docs/AnaghaBarasala/index.html`. Telugu-styled; the baby/cradle art is
+   inline SVG in the component. Event details live in the `EVENT` object at the
+   top of the component and the `EVENT_*` constants in
+   `google-apps-script/CradleCode.gs` (its own Apps Script project + sheet,
+   same deploy rules as `Code.gs`); `GAS_URL` in the component must be set to
+   that deployment's `/exec` URL.
+
    **Adding a new standalone page** is the same pattern: create a React component,
    add an entry in `webpack.config.js`, add a matching `HtmlWebpackPlugin` block,
    rebuild.
