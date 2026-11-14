@@ -430,7 +430,7 @@ export default function CradleCeremony() {
       <section className="cc-event" aria-label="Event details">
         <div className="cc-zari" />
         <div className="cc-event-body">
-          <p className="cc-event-te">You are invited</p>
+          <p className="cc-event-te">We would love for you to celebrate with us</p>
           <p className="cc-date">{EVENT.date || 'Date to be announced'}</p>
           {EVENT.date && EVENT.time && <p className="cc-time">{EVENT.time}</p>}
           {EVENT.venueName && <p className="cc-venue-name">{EVENT.venueName}</p>}
@@ -441,9 +441,9 @@ export default function CradleCeremony() {
             </a>
           )}
           {EVENT.dressCode && <p className="cc-dress">Dress code: {EVENT.dressCode}</p>}
-          <p className="cc-dress">Please join us for a vegetarian lunch after the ceremony.</p>
+          <p className="cc-dress">A vegetarian lunch will follow the ceremony.</p>
           <p className="cc-event-line">
-            Join us as we name our little one, lay the baby in the cradle for the first time, and ask for your blessings.
+            We will name our little one, lay the baby in the cradle for the first time, and ask for your blessings.
           </p>
         </div>
         <div className="cc-zari cc-zari-flip" />
