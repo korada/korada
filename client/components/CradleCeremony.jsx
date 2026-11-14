@@ -295,7 +295,6 @@ export default function CradleCeremony() {
     f.adults.value = d.adults || '1';
     f.children.value = d.children || '0';
     f.message.value = d.message || '';
-    f.dietary.value = d.dietary || '';
   }
 
   function startEdit() {
@@ -374,7 +373,6 @@ export default function CradleCeremony() {
       adults: form.adults.value,
       children: form.children.value,
       message: form.message.value.trim(),
-      dietary: form.dietary.value.trim(),
     };
 
     setStatus('submitting');
@@ -443,6 +441,7 @@ export default function CradleCeremony() {
             </a>
           )}
           {EVENT.dressCode && <p className="cc-dress">Dress code: {EVENT.dressCode}</p>}
+          <p className="cc-dress">Please join us for a vegetarian lunch after the ceremony.</p>
           <p className="cc-event-line">
             Join us as we name our little one, lay the baby in the cradle for the first time, and ask for your blessings.
           </p>
@@ -471,7 +470,6 @@ export default function CradleCeremony() {
               <div><dt>Name</dt><dd>{saved.name}</dd></div>
               <div><dt>Email</dt><dd>{saved.email}</dd></div>
               <div><dt>Attending</dt><dd>{partyText(saved)}</dd></div>
-              {saved.dietary && <div><dt>Food</dt><dd>{saved.dietary}</dd></div>}
               {saved.message && <div><dt>Blessings</dt><dd>{saved.message}</dd></div>}
             </dl>
             {confirmRemove ? (
@@ -600,19 +598,6 @@ export default function CradleCeremony() {
               </div>
             </div>
 
-            <fieldset className="cc-field cc-fieldset">
-              <legend>Food preference <span className="cc-opt">(optional)</span></legend>
-              <div className="cc-radio-group">
-                <label className="cc-radio">
-                  <input type="radio" name="dietary" value="Vegetarian" />
-                  <span>Vegetarian</span>
-                </label>
-                <label className="cc-radio">
-                  <input type="radio" name="dietary" value="Non-Vegetarian" />
-                  <span>Non-vegetarian</span>
-                </label>
-              </div>
-            </fieldset>
 
             <div className="cc-field">
               <label htmlFor="cc-message">Blessings for Anagha Saraswika <span className="cc-opt">(optional)</span></label>
