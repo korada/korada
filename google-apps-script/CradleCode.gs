@@ -20,7 +20,7 @@
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-var SCRIPT_VERSION = 3;
+var SCRIPT_VERSION = 4;
 var SHEET_ID     = '';   // empty = the spreadsheet this script is attached to
 var SHEET_NAME   = 'RSVPs';
 var NOTIFY_EMAIL = 'korvenadi@gmail.com,sasanapuris@gmail.com';
@@ -380,7 +380,7 @@ function emailShell(headingHtml, innerHtml) {
     'border:2px solid #C99A2E;border-radius:6px;overflow:hidden;color:#3B1712">' +
     zari +
     '<div style="padding:26px 28px 6px;text-align:center">' +
-      '<div style="color:#8E1230;font-size:26px;line-height:1.4">&#3116;&#3134;&#3120;&#3128;&#3134;&#3122;</div>' +
+      '<div style="color:#8E1230;font-size:26px;line-height:1.4">&#3116;&#3134;&#3120;&#3128;&#3134;&#3122; &#3125;&#3143;&#3105;&#3137;&#3093;</div>' +
       '<h1 style="color:#8E1230;font-size:24px;font-weight:400;margin:8px 0 0">' + headingHtml + '</h1>' +
     '</div>' +
     '<div style="padding:4px 28px 14px;font-size:15px;line-height:1.7;color:#3B1712">' + innerHtml + '</div>' +

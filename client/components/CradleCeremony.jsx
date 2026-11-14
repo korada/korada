@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../assets/css/CradleCeremony.scss';
 
 // Paste the /exec URL of the deployed google-apps-script/CradleCode.gs web app here.
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbysOgu-cpcx856oOCqT4RkEGdZ4RSFk_9md-EVvPpWj3W7JE7y4JFX-xJ5kHtWF_K-h/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwZp0z1rDcb_wbLFszDixXNa75Qv8aYIdcVY8bMr2oLJMqtDg-mnrZnWkqPfkaPYDE/exec';
 const GAS_CONFIGURED = GAS_URL.indexOf('https://') === 0;
 const STORAGE_KEY = 'anagha_cradle_rsvp_v1';
 
@@ -418,7 +418,7 @@ export default function CradleCeremony() {
       <Toran />
 
       <header className="cc-header">
-        <h1 className="cc-title" lang="te">బారసాల</h1>
+        <h1 className="cc-title" lang="te">బారసాల వేడుక</h1>
         <p className="cc-subtitle">Cradle Ceremony</p>
         <p className="cc-name">Anagha Saraswika</p>
       </header>
